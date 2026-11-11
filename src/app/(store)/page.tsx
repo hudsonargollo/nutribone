@@ -8,6 +8,7 @@ import { PromoOverlay } from "@/components/promo-overlay";
 import { CategoryArt } from "@/components/category-art";
 import { FeaturedCarousel } from "@/components/featured-carousel";
 import { Commitments } from "@/components/commitments";
+import { FounderSlideshow } from "@/components/founder-slideshow";
 import { Newsletter } from "@/components/newsletter";
 import { DeliveryBand } from "@/components/delivery-band";
 import { ClubBand } from "@/components/loyalty/club-band";
@@ -243,12 +244,7 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2">
           <Reveal>
             <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-panel">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/founder.jpg"
-                alt="Laura Nicole Cuellar, fundadora de NutriBone"
-                className="h-full w-full object-cover"
-              />
+              <FounderSlideshow />
               <div className="pointer-events-none absolute inset-3 rounded-xl border border-[rgba(246,243,232,0.6)]" />
             </div>
           </Reveal>
