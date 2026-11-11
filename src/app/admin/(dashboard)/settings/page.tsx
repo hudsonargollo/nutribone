@@ -1,11 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { getStoreSettings } from "@/lib/settings";
-import { getBranches } from "@/lib/branch";
 import { DbBanner } from "@/components/admin/db-banner";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { StoreSettingsForms, PasswordForm, AddTeamMemberForm } from "@/components/admin/settings-forms";
-import { removeTeamMember, setTeamMemberBranch } from "./actions";
+import { removeTeamMember } from "./actions";
 
 export const metadata = { title: "Ajustes" };
 export const dynamic = "force-dynamic";
@@ -30,7 +29,6 @@ async function loadTeam() {
         email: true,
         role: true,
         createdAt: true,
-        branch: { select: { id: true, name: true } },
       },
     });
     return { dbConnected: true, users };
@@ -41,7 +39,7 @@ async function loadTeam() {
 
 export default async function AdminSettingsPage() {
   const session = await requireAdmin();
-  const [settings, team, branches] = await Promise.all([getStoreSettings(), loadTeam(), getBranches()]);
+  const [settings, team] = await Promise.all([getStoreSettings(), loadTeam()]);
   const isOwner = session.role === "ADMIN";
   const adminCount = team.users.filter((u) => u.role === "ADMIN").length;
 
@@ -80,12 +78,12 @@ export default async function AdminSettingsPage() {
         {/* Team */}
         <section
           id="team"
-          className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6"
+          className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6"
         >
           <h2 className="font-display text-xl font-semibold text-ink">Equipo</h2>
           <p className="mt-1 text-sm text-muted">
-            Personas que pueden iniciar sesión en este panel. Cada miembro del personal entra
-            únicamente a su sucursal; los administradores ven todas.
+            Personas que pueden iniciar sesión en este panel. El personal gestiona pedidos,
+            inventario y productos; los administradores también cambian los ajustes.
           </p>
           <ul className="mt-4 divide-y divide-[var(--line)]">
             {team.users.map((u) => {
@@ -99,10 +97,6 @@ export default async function AdminSettingsPage() {
                       {isSelf && <span className="ml-2 text-xs font-normal text-muted">(tú)</span>}
                     </p>
                     <p className="text-xs text-muted">{u.email}</p>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
-                      <span className="font-medium text-ink-soft">Sucursal:</span>
-                      {u.role === "ADMIN" ? "Todas las sucursales" : u.branch?.name ?? "Sin asignar"}
-                    </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-4">
                     <span
@@ -112,29 +106,6 @@ export default async function AdminSettingsPage() {
                     >
                       {u.role === "ADMIN" ? "Administrador" : "Personal"}
                     </span>
-                    {isOwner && u.role === "STAFF" && branches.length > 0 && (
-                      <form action={setTeamMemberBranch.bind(null, u.id)} className="flex items-center gap-2">
-                        <select
-                          name="branchId"
-                          defaultValue={u.branch?.id ?? ""}
-                          aria-label={`Sucursal de ${u.email}`}
-                          className="rounded-lg border border-[var(--line-strong)] bg-surface px-2.5 py-1.5 text-xs text-ink outline-none focus:border-accent"
-                        >
-                          {!u.branch && <option value="">Elige sucursal…</option>}
-                          {branches.map((b) => (
-                            <option key={b.id} value={b.id}>
-                              {b.name}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="submit"
-                          className="rounded-lg border border-[var(--line-strong)] px-2.5 py-1.5 text-xs font-medium text-ink transition hover:border-accent hover:text-accent-strong"
-                        >
-                          Mover
-                        </button>
-                      </form>
-                    )}
                     {isOwner && !isSelf && !lastAdmin && (
                       <DeleteButton
                         action={removeTeamMember.bind(null, u.id)}
@@ -149,7 +120,7 @@ export default async function AdminSettingsPage() {
           </ul>
         </section>
 
-        {isOwner && <AddTeamMemberForm branches={branches} />}
+        {isOwner && <AddTeamMemberForm />}
       </div>
     </div>
   );

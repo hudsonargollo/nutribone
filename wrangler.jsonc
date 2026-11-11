@@ -1,7 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"main": ".open-next/worker.js",
-	"name": "casadelcamba",
+	"name": "nutribone",
 	"compatibility_date": "2026-10-30",
 	"compatibility_flags": [
 		"nodejs_compat",
@@ -17,7 +17,7 @@
 			// Self-reference service binding, the service name must match the worker name
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
-			"service": "casadelcamba"
+			"service": "nutribone"
 		}
 	],
 	"r2_buckets": [
@@ -28,7 +28,7 @@
 			// Create the bucket before deploying
 			// You can change the bucket name if you want
 			// See https://developers.cloudflare.com/workers/wrangler/commands/#r2-bucket-create
-			"bucket_name": "casadelcamba-opennext-cache"
+			"bucket_name": "nutribone-opennext-cache"
 		}
 	],
 	"images": {

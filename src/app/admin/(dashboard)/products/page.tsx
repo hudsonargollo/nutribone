@@ -4,15 +4,15 @@ import { formatPrice } from "@/lib/format";
 import { DbBanner } from "@/components/admin/db-banner";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { deleteProduct } from "./actions";
-import { requireAdmin, scopeBranchId } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Productos" };
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
-  const session = await requireAdmin(); // layouts don't re-run on client navigation
-  const { dbConnected, products } = await getAdminProducts(scopeBranchId(session));
+  await requireAdmin(); // layouts don't re-run on client navigation
+  const { dbConnected, products } = await getAdminProducts();
 
   return (
     <div>

@@ -1,4 +1,4 @@
-# Despliegue en producción — Casa del Camba
+# Despliegue en producción — NutriBone
 
 Producción corre en un **VPS propio (Ubuntu) con systemd + nginx**. Netlify, Vercel y
 Cloudflare no se usan para el sitio en vivo.
@@ -7,14 +7,14 @@ Cloudflare no se usan para el sitio en vivo.
 
 | Elemento | Valor |
 | -------- | ----- |
-| URL pública | <https://casadelcamba.clubemkt.digital> |
-| Código fuente | `/root/ClubeMkt/casadelcamba` |
-| Build desplegado | `/var/www/casadelcamba` (`server.js`, `.next/`, `public/`) |
-| Servicio | `casadelcamba.service` (systemd) |
-| Puerto interno | `3005` (`PORT` en la unit) |
-| Proxy | nginx `sites-enabled/casadelcamba` → `http://172.17.0.1:3005` |
-| Variables de entorno | `EnvironmentFile=/root/ClubeMkt/casadelcamba/.env` |
-| Uploads | `UPLOAD_DIR=/var/www/casadelcamba-data/uploads` |
+| URL pública | <https://nutribone.clubemkt.digital> |
+| Código fuente | `/root/ClubeMkt/nutribone` |
+| Build desplegado | `/var/www/nutribone` (`server.js`, `.next/`, `public/`) |
+| Servicio | `nutribone.service` (systemd) |
+| Puerto interno | `3017` (`PORT` en la unit) |
+| Proxy | nginx `sites-enabled/nutribone` → `http://172.17.0.1:3017` |
+| Variables de entorno | `EnvironmentFile=/root/ClubeMkt/nutribone/.env` |
+| Uploads | `UPLOAD_DIR=/var/www/nutribone-data/uploads` |
 | Base de datos | PostgreSQL (`DATABASE_URL` / `DIRECT_URL` en `.env`) |
 
 `next.config.ts` genera `output: "standalone"` en el VPS (en Netlify/Vercel se
@@ -26,7 +26,7 @@ desactiva porque esas plataformas empaquetan la app por su cuenta).
 ## Desplegar
 
 ```bash
-cd /root/ClubeMkt/casadelcamba
+cd /root/ClubeMkt/nutribone
 git pull
 bash scripts/deploy.sh
 ```
@@ -36,19 +36,19 @@ El script:
 1. `npm install` y `npx prisma generate`.
 2. `npx prisma migrate deploy`.
 3. `npm run build`.
-4. Copia el build standalone a `/var/www/casadelcamba` (sin `node_modules`) y
+4. Copia el build standalone a `/var/www/nutribone` (sin `node_modules`) y
    sincroniza `public/`.
-5. Limpia `.next/cache` y reinicia `casadelcamba.service`.
-6. Comprueba `http://127.0.0.1:3005/` hasta obtener `200`.
+5. Limpia `.next/cache` y reinicia `nutribone.service`.
+6. Comprueba `http://127.0.0.1:3017/` hasta obtener `200`.
 
 ## Operación
 
 ```bash
-systemctl status casadelcamba.service
-systemctl restart casadelcamba.service
-journalctl -u casadelcamba.service -f
-curl -I http://127.0.0.1:3005/
-curl -s http://127.0.0.1:3005/api/health
+systemctl status nutribone.service
+systemctl restart nutribone.service
+journalctl -u nutribone.service -f
+curl -I http://127.0.0.1:3017/
+curl -s http://127.0.0.1:3017/api/health
 ```
 
 `start-store.sh` es solo un respaldo manual para arrancar el build desplegado;
@@ -65,7 +65,7 @@ lo normal es usar systemd.
 Las imágenes subidas desde el panel se guardan **fuera** del build, en
 `UPLOAD_DIR`, y se sirven por `/uploads/products/[file]` y
 `/uploads/references/[file]`. El despliegue no toca esa carpeta. Respalda
-`/var/www/casadelcamba-data/uploads`.
+`/var/www/nutribone-data/uploads`.
 
 ## Rollback
 

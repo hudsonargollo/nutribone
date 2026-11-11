@@ -71,7 +71,7 @@ export function LoginForm({ next }: { next?: string }) {
 
       <div className="mt-6 flex items-center gap-3 text-[0.65rem] uppercase tracking-[0.2em] text-muted">
         <span className="h-px flex-1 bg-[var(--line)]" />
-        ¿Primera vez en Casa del Camba?
+        ¿Primera vez en NutriBone?
         <span className="h-px flex-1 bg-[var(--line)]" />
       </div>
       <Link

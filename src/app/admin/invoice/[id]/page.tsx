@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireAdmin, scopeBranchId } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 import { getAdminOrder } from "@/lib/admin-data";
 import { getStoreSettings } from "@/lib/settings";
 import { formatPrice } from "@/lib/format";
@@ -14,10 +14,10 @@ export const dynamic = "force-dynamic";
 // Printable invoice + packing slip. Lives outside the dashboard layout so it
 // prints on a clean A4 page (sidebar/header not included).
 export default async function InvoicePage({ params }: PageProps<"/admin/invoice/[id]">) {
-  const session = await requireAdmin();
+  await requireAdmin();
   const { id } = await params;
   const [order, settings] = await Promise.all([
-    getAdminOrder(id, scopeBranchId(session)),
+    getAdminOrder(id),
     getStoreSettings(),
   ]);
   if (!order) notFound();
@@ -42,13 +42,10 @@ export default async function InvoicePage({ params }: PageProps<"/admin/invoice/
 
       <article className="mx-auto max-w-[800px] bg-white p-10 text-[13px] leading-relaxed text-[#101820] shadow-sm print:max-w-none print:p-0 print:shadow-none">
         {/* Header */}
-        <header className="flex items-start justify-between border-b-2 border-[#4c8a23] pb-5">
+        <header className="flex items-start justify-between border-b-2 border-[#3a5a3a] pb-5">
           <div>
-            <p className="font-display text-3xl font-bold tracking-[0.25em] text-[#4c8a23]">Casa del Camba</p>
-            <p className="mt-1 text-xs italic text-[#5b6b7c]">Comida típica cruceña · Desde 1986</p>
-            <p className="mt-2 text-xs font-medium text-[#4c8a23]">
-              Sucursal: {order.branch.name} · {order.branch.code}
-            </p>
+            <p className="font-display text-3xl font-bold tracking-[0.25em] text-[#3a5a3a]">NutriBone</p>
+            <p className="mt-1 text-xs italic text-[#5b6b7c]">Caldo de huesos artesanal · Desde 2023</p>
             <p className="mt-3 text-xs text-[#5b6b7c]">{[c.city, c.phone, c.email].filter(Boolean).join(" · ")}</p>
           </div>
           <div className="text-right">
@@ -62,13 +59,13 @@ export default async function InvoicePage({ params }: PageProps<"/admin/invoice/
         <section className="mt-6 grid grid-cols-2 gap-8">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#5b6b7c]">
-              {order.fulfillment === "PICKUP" ? "Retiro en tienda" : "Facturar / enviar a"}
+              Facturar / enviar a
             </p>
             <p className="mt-1.5 font-medium">{order.customerName}</p>
-            <p>{order.fulfillment === "PICKUP" ? `${order.branch.address}, ${order.branch.city}` : order.address}</p>
+            <p>{order.address}</p>
             <p>
-              {order.fulfillment === "PICKUP" ? order.branch.phone ?? "" : order.city}
-              {order.fulfillment !== "PICKUP" && order.postalCode ? ` ${order.postalCode}` : ""}
+              {order.city}
+              {order.postalCode ? ` ${order.postalCode}` : ""}
             </p>
             <p>{order.phone}</p>
             <p className="text-[#5b6b7c]">{order.email}</p>
@@ -77,7 +74,7 @@ export default async function InvoicePage({ params }: PageProps<"/admin/invoice/
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#5b6b7c]">Pago</p>
             <p className="mt-1.5 font-medium">{PAYMENT_METHOD_LABEL[order.paymentMethod] ?? order.paymentMethod}</p>
             <p>Estado: {PAYMENT_STATUS_LABEL[order.paymentStatus] ?? order.paymentStatus}</p>
-            <p>{order.fulfillment === "PICKUP" ? "Retiro en tienda" : "Entrega a domicilio"}</p>
+            <p>Entrega a domicilio</p>
             {order.courier && order.trackingNumber && (
               <p className="mt-2">
                 {courierLabel(order.courier)} · <span className="font-medium">{order.trackingNumber}</span>
@@ -115,9 +112,9 @@ export default async function InvoicePage({ params }: PageProps<"/admin/invoice/
             <span>{formatPrice(order.subtotal)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#5b6b7c]">{order.fulfillment === "PICKUP" ? "Retiro en tienda" : "Delivery"}</span>
+            <span className="text-[#5b6b7c]">Delivery</span>
             <span>
-              {order.fulfillment === "PICKUP" || order.shipping === 0 ? "Sin costo" : formatPrice(order.shipping)}
+              {order.shipping === 0 ? "Sin costo" : formatPrice(order.shipping)}
             </span>
           </div>
           <div className="flex justify-between border-t border-[#101820] pt-2 text-base font-semibold">
@@ -125,7 +122,7 @@ export default async function InvoicePage({ params }: PageProps<"/admin/invoice/
             <span>{formatPrice(order.total)}</span>
           </div>
           {codDue > 0 && (
-            <div className="mt-2 rounded border-2 border-[#4c8a23] px-3 py-2 text-center font-semibold text-[#4c8a23]">
+            <div className="mt-2 rounded border-2 border-[#3a5a3a] px-3 py-2 text-center font-semibold text-[#3a5a3a]">
               Efectivo a cobrar: {formatPrice(codDue)}
             </div>
           )}
@@ -138,7 +135,7 @@ export default async function InvoicePage({ params }: PageProps<"/admin/invoice/
         )}
 
         <p className="mt-8 text-center text-xs text-[#5b6b7c]">
-          Gracias por pedir en Casa del Camba. Si algo no está bien, escríbenos con tu número de pedido. Revisaremos tu caso con cuidado para buscar la solución adecuada lo antes posible.
+          Gracias por pedir en NutriBone. Si algo no está bien, escríbenos con tu número de pedido. Revisaremos tu caso con cuidado para buscar la solución adecuada lo antes posible.
         </p>
 
         {/* Packing slip — cut off and put in / on the parcel */}
@@ -147,10 +144,10 @@ export default async function InvoicePage({ params }: PageProps<"/admin/invoice/
           <div className="mt-3 grid grid-cols-2 gap-8">
             <div>
               <p className="text-lg font-semibold">{order.customerName}</p>
-              <p>{order.fulfillment === "PICKUP" ? `${order.branch.address}, ${order.branch.city}` : order.address}</p>
+              <p>{order.address}</p>
               <p>
-                {order.fulfillment === "PICKUP" ? order.branch.name : order.city}
-                {order.fulfillment !== "PICKUP" && order.postalCode ? ` ${order.postalCode}` : ""}
+                {order.city}
+                {order.postalCode ? ` ${order.postalCode}` : ""}
               </p>
               <p className="font-medium">{order.phone}</p>
             </div>

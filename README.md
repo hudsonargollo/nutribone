@@ -1,10 +1,14 @@
-# Casa del Camba — Tienda en línea (multi-sucursal)
+# NutriBone — Tienda en línea (100% digital)
 
-Tienda en línea de **Casa del Camba**, restaurante de comida típica cruceña
-fundado en **1986**, con **13 sucursales** en Santa Cruz, Bolivia. Catálogo
-compartido con **stock por sucursal**, entrega a domicilio o retiro en tienda,
-y un panel donde cada sucursal gestiona sus propios pedidos con sus propias
-credenciales.
+Tienda en línea de **NutriBone**, caldo de huesos artesanal de **Santa Cruz de la
+Sierra** (Bolivia), creado en **2023** por Laura Nicole Cuellar. Negocio
+**100% digital**: sin local físico ni sucursales. Catálogo compartido con **un
+solo stock por producto**, pedidos **solo con entrega a domicilio** (delivery
+gratis dentro del 4to anillo) y un panel de administración global.
+
+> **Precios:** el seed carga precios en `0` = *"Precio por confirmar"*. El cliente
+> publica los precios reales desde **Admin → Productos**. Nunca se inventan
+> precios en el código.
 
 ## Stack
 
@@ -12,7 +16,7 @@ credenciales.
 - **Tailwind CSS v4**
 - **Prisma 6** + **PostgreSQL** (dinero en `Decimal`, moneda **Bs**)
 - **Zod** para validación
-- Pagos: contra entrega + PayFast / Safepay (opcionales)
+- Pagos: **contra entrega (COD)** + **QR / transferencia (TRANSFER)** coordinada por WhatsApp
 
 ## Puesta en marcha
 
@@ -24,8 +28,8 @@ credenciales.
 2. **Configurar la base de datos**
    Copia `.env.example` a `.env` y ajusta las conexiones:
    ```env
-   DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/casadelcamba?schema=public"
-   DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/casadelcamba?schema=public"
+   DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/nutribone?schema=public"
+   DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/nutribone?schema=public"
    ```
 
 3. **Aplicar el esquema y cargar datos**
@@ -49,82 +53,81 @@ credenciales.
 | `npm run build` | Build de producción |
 | `npm run db:migrate` | Crea/aplica migraciones en desarrollo |
 | `npm run db:push` | Empuja el esquema sin migración |
-| `npm run db:seed` | Menú (58 platos), 13 sucursales, ajustes y Club Camba |
+| `npm run db:seed` | Catálogo (5 categorías, 12 productos), ajustes y Club NutriBone |
 | `npm run db:studio` | Prisma Studio |
 | `npm run db:create-admin` | Crea/actualiza el administrador desde `ADMIN_EMAIL` / `ADMIN_PASSWORD` |
-| `npm run db:copy` | Copia datos entre dos bases (ver `prisma/copy-data.ts`) |
 
 ## Modelo de datos
 
-`Category · Product · Branch · BranchStock · Order · OrderItem · Customer · User`
-(ver `prisma/schema.prisma`).
+`Category · Product · Order · OrderItem · Customer · User · Setting ·
+ContactMessage · Subscriber · EmailVerification · Reward · Redemption ·
+LoyaltyEntry` (ver `prisma/schema.prisma`). **No hay `Branch` ni `BranchStock`.**
 
-- El **catálogo es compartido**: cada producto existe una sola vez.
-- El **stock vive en `BranchStock`** (`branchId + productId`), y la tienda resuelve
-  la disponibilidad para la sucursal elegida por el cliente.
-- Cada `Order` pertenece a una sucursal y registra `fulfillment` (`DELIVERY` o
-  `PICKUP`). El número de pedido empieza con el código de la sucursal
-  (`CC01-241105-A1B2C3D4`).
-- Los usuarios `STAFF` están ligados a una sucursal (`User.branchId`); los
-  `ADMIN` son globales.
+- El **catálogo es compartido**: cada producto existe una sola vez, con un único
+  campo `stock` y un flag `active`.
+- Cada `Order` es **solo entrega** (`address` + `city` obligatorios) y registra
+  `paymentMethod` (`COD` o `TRANSFER`). El número de pedido usa el prefijo
+  `NB-` (`NB-XXXXXX-XXXXXXXX`).
+- Los `User` (admin/staff) son **globales**; no están ligados a ninguna sucursal.
+- El **Club NutriBone** (sellos + puntos) es opcional y viene **desactivado** por
+  defecto; se activa en **Admin → Club**.
 
 ## Flujo del cliente
 
 | Ruta | Página |
 | ---- | ------ |
 | `/` | Inicio |
-| `/sucursal` | Selector de sucursal (obligatorio antes de pagar) |
-| `/shop`, `/shop/[category]` | Menú y categorías |
+| `/shop`, `/shop/[category]` | Tienda y categorías |
 | `/product/[slug]` | Detalle de producto |
 | `/search` | Búsqueda |
 | `/cart` | Carrito |
-| `/checkout` | Entrega o retiro + método de pago |
+| `/checkout` | Entrega a domicilio + método de pago |
 | `/checkout/success` | Confirmación |
-| `/club-camba` | Club Camba — sellos, puntos y recompensas |
+| `/club` | Club NutriBone — sellos, puntos y recompensas |
+| `/about`, `/care`, `/faq`, `/shipping` | Marca, conservación, preguntas y delivery |
+| `/contact`, `/custom` | Contacto y pedidos por mayor |
+| `/account`, `/account/orders` | Cuenta y estado del pedido |
 
-La sucursal elegida se guarda en la cookie `cc_branch` (180 días). Sin sucursal
-se puede navegar, pero al iniciar el pago la tienda pide elegir una.
+No hay selector de sucursal ni retiro en tienda: al pagar solo se pide la
+dirección de entrega.
 
 ## Panel administrativo
 
 | Ruta | Página |
 | ---- | ------ |
 | `/admin` | Panel — ventas, pedidos y stock bajo |
-| `/admin/orders` | Pedidos (filtrados por sucursal para el personal) |
-| `/admin/inventory` | Stock y disponibilidad por sucursal |
-| `/admin/products` | Productos del catálogo compartido |
-| `/admin/branches` | Sucursales (solo administradores) |
+| `/admin/orders`, `/admin/orders/[id]` | Pedidos |
+| `/admin/inventory` | Stock y disponibilidad |
+| `/admin/products`, `/admin/products/new` | Productos del catálogo |
+| `/admin/categories` | Categorías |
 | `/admin/customers` | Clientes |
 | `/admin/analytics`, `/insights`, `/performance` | Analíticas de ventas |
 | `/admin/messages` | Mensajes de contacto |
+| `/admin/loyalty` | Club NutriBone (sellos, puntos, recompensas) |
 | `/admin/settings` | Ajustes, equipo y contraseña |
+| `/admin/invoice/[id]` | Factura / recibo del pedido |
 
-En **Ajustes → Equipo** se crea el acceso de cada sucursal: rol *Personal* +
-sucursal. Ese usuario solo ve y gestiona pedidos, inventario y analíticas de su
-sucursal. Los *Administradores* ven todas y administran sucursales, equipo,
-categorías y ajustes.
-
-Las sesiones son cookies httpOnly firmadas con `AUTH_SECRET` (**obligatorio en
-producción**), con una sola sesión activa por cuenta. Login y OTP tienen límite
-de intentos.
+Los roles `ADMIN` y `STAFF` son globales (sin sucursales). Las sesiones son
+cookies httpOnly firmadas con `AUTH_SECRET` (**obligatorio en producción**), con
+una sola sesión activa por cuenta. Login y OTP tienen límite de intentos.
 
 ## Despliegue
 
 **VPS (systemd + nginx):** el build genera un servidor standalone
 (`output: "standalone"`). `scripts/deploy.sh` compila, sincroniza a
-`/var/www/casadelcamba` y reinicia `casadelcamba.service`. Usa **una sola instancia**
+`/var/www/nutribone` y reinicia `nutribone.service`. Usa **una sola instancia**
 de larga duración (las alertas de pedidos y el rate limit son en memoria).
 
 **Docker:**
 ```bash
-docker build -t casadelcamba .
-docker run -p 3000:3000 --env-file .env -v casadelcamba-uploads:/app/uploads casadelcamba
+docker build -t nutribone .
+docker run -p 3000:3000 --env-file .env -v nutribone-uploads:/app/uploads nutribone
 ```
 
 En una base nueva:
 ```bash
 npx prisma migrate deploy
-npm run db:seed        # opcional: menú + sucursales
+npm run db:seed        # catálogo + ajustes (precios en 0)
 npm run db:create-admin
 ```
 
@@ -135,5 +138,7 @@ npm run db:create-admin
 
 - Despliegue en producción: [`docs/DEPLOY.md`](docs/DEPLOY.md).
 - El seed (`prisma/seed.ts`) y los datos de respaldo sin base de datos
-  (`src/lib/sample-data.ts`) reflejan el menú completo: 10 categorías y
-  58 platos con fotos en `public/imgs/menu/`.
+  (`src/lib/sample-data.ts`) reflejan el mismo catálogo: 5 categorías y 12
+  productos con fotos en `public/images/`. Volver a correr el seed refresca los
+  textos del catálogo pero **no** pisa precios, stock ni ajustes editados en el
+  panel.

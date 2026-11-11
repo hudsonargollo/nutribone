@@ -9,12 +9,12 @@ import { useToast } from "@/components/ui/toast";
 const initial: LoginState = {};
 
 const input =
-  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-[rgba(255,204,4,0.22)]";
+  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-[rgba(201,138,46,0.22)]";
 
 const label = "mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-muted";
 
 const submitBtn =
-  "w-full rounded-full bg-accent px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60";
+  "w-full rounded-full bg-accent px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60";
 
 export function AdminLoginForm({ notice }: { notice?: string }) {
   const [state, formAction, pending] = useActionState(loginAction, initial);
@@ -61,7 +61,7 @@ export function AdminLoginForm({ notice }: { notice?: string }) {
       </form>
 
       <p className="mt-6 text-center text-xs text-muted">
-        Solo personal autorizado · Casa del Camba
+        Solo personal autorizado · NutriBone
       </p>
     </AuthShell>
   );

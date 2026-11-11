@@ -35,19 +35,13 @@ async function copy<T>(label: string, rows: T[], insert: (data: T[]) => Promise<
 }
 
 async function main() {
-  console.log("Copying Casa del Camba data…");
+  console.log("Copying NutriBone data…");
   // Order matters: parents before children (foreign keys).
   await copy("categories", await src.category.findMany(), (data) =>
     dst.category.createMany({ data, skipDuplicates: true })
   );
   await copy("products", await src.product.findMany(), (data) =>
     dst.product.createMany({ data, skipDuplicates: true })
-  );
-  await copy("branches", await src.branch.findMany(), (data) =>
-    dst.branch.createMany({ data, skipDuplicates: true })
-  );
-  await copy("branch stock", await src.branchStock.findMany(), (data) =>
-    dst.branchStock.createMany({ data, skipDuplicates: true })
   );
   await copy("admin users", await src.user.findMany(), (data) =>
     dst.user.createMany({ data, skipDuplicates: true })

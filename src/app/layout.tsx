@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
 import { CartProvider } from "@/components/cart/cart-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import { FlashToast } from "@/components/ui/flash-toast";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["500", "600", "700", "800"],
   display: "swap",
@@ -22,37 +22,36 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Casa del Camba | El mejor sabor de Santa Cruz",
-    template: "%s | Casa del Camba",
+    default: "NutriBone | Caldo de huesos artesanal · Santa Cruz",
+    template: "%s | NutriBone",
   },
   description:
-    "Comida típica cruceña desde 1986: majao de pato, picante de pollo, empanadas de keperí y parrilla. Pide en línea con delivery o retiro en tienda en Santa Cruz, Bolivia.",
+    "Caldo de huesos artesanal en Santa Cruz de la Sierra: 48 horas de cocción lenta, 100% natural y sin conservantes. Original, White y Antiinflamatorio. Delivery gratis dentro del 4to anillo.",
   keywords: [
-    "Casa del Camba",
-    "comida típica cruceña",
-    "majao de pato",
-    "picante de pollo",
-    "empanadas de keperí",
-    "parrilla",
-    "delivery Santa Cruz",
-    "retiro en tienda",
-    "Santa Cruz",
+    "NutriBone",
+    "caldo de huesos",
+    "bone broth",
+    "colágeno",
+    "caldo antiinflamatorio",
+    "nutrición real",
+    "Santa Cruz de la Sierra",
     "Bolivia",
+    "delivery Santa Cruz",
   ],
-  applicationName: "Casa del Camba",
+  applicationName: "NutriBone",
   openGraph: {
-    title: "Casa del Camba | El mejor sabor de Santa Cruz",
+    title: "NutriBone | El poder de sanar en cada sorbo",
     description:
-      "Comida típica cruceña desde 1986: majao de pato, picantes, empanadas de keperí y parrilla, con delivery y retiro en tienda en Santa Cruz.",
+      "Caldo de huesos artesanal: 48 horas de cocción lenta, 100% natural. Delivery gratis dentro del 4to anillo en Santa Cruz de la Sierra.",
     type: "website",
-    siteName: "Casa del Camba",
+    siteName: "NutriBone",
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Casa del Camba | El mejor sabor de Santa Cruz",
+    title: "NutriBone | El poder de sanar en cada sorbo",
     description:
-      "Comida típica cruceña desde 1986: majao de pato, picantes, empanadas de keperí y parrilla, con delivery y retiro en tienda en Santa Cruz.",
+      "Caldo de huesos artesanal: 48 horas de cocción lenta, 100% natural. Delivery gratis dentro del 4to anillo en Santa Cruz de la Sierra.",
   },
 };
 
@@ -61,7 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${outfit.variable} ${inter.variable} h-full antialiased`}
+      className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-ink">
         <noscript>
@@ -71,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var t=localStorage.getItem('casadelcamba-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}else if(t==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();",
+              "(function(){try{var t=localStorage.getItem('nutribone-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}else if(t==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();",
           }}
         />
         <ToastProvider>

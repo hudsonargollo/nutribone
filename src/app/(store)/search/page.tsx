@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { searchStore } from "@/lib/catalog";
-import { getSelectedBranch } from "@/lib/branch";
 import { formatPrice } from "@/lib/format";
 import { ProductGrid } from "@/components/product-grid";
 import { BuscarBox } from "@/components/search/search-box";
@@ -12,7 +11,7 @@ export async function generateMetadata({ searchParams }: PageProps<"/search">): 
   return {
     robots: { index: false, follow: true },
     title: q ? `Buscar: ${q}` : "Buscar",
-    description: "Busca en el menú de Casa del Camba.",
+    description: "Busca en la tienda de NutriBone.",
   };
 }
 
@@ -30,7 +29,7 @@ function Tag({ children }: { children: React.ReactNode }) {
 export default async function SearchPage({ searchParams }: PageProps<"/search">) {
   const sp = await searchParams;
   const q = (Array.isArray(sp.q) ? sp.q[0] : sp.q)?.trim().slice(0, 100) ?? "";
-  const result = await searchStore(q, (await getSelectedBranch())?.id);
+  const result = await searchStore(q);
   const { products, category, corrections, minPrice, maxPrice, onSale, partial, categories, all } = result;
   const live = categories.filter((c) => c.count > 0);
 
@@ -56,7 +55,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
         </span>
         <div className="relative">
           <span className="eyebrow">Encuentra lo que buscas</span>
-          <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">Busca en el menú</h1>
+          <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">Busca en la tienda</h1>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted">
             Escribe un producto, una categoría o un precio — no importa si hay errores de ortografía.
           </p>
@@ -125,10 +124,10 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
                 <>
                   <h2 className="relative mt-4 font-display text-2xl text-ink">Nuestra categoría {category.name} está llegando pronto</h2>
                   <p className="relative mx-auto mt-2 max-w-md text-sm text-muted">
-                    Esto se está preparando ahora. Recibe un aviso en cuanto esté disponible — o explora el
-                    menú abajo.
+                    Esto se está preparando ahora. Recibe un aviso en cuanto esté disponible — o explora la
+                    tienda abajo.
                   </p>
-                  <Link href={`/shop/${category.slug}`} className="relative mt-6 inline-flex rounded-full bg-accent px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft">
+                  <Link href={`/shop/${category.slug}`} className="relative mt-6 inline-flex rounded-full bg-accent px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft">
                     Avísame cuando llegue
                   </Link>
                 </>
@@ -141,9 +140,9 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
                 </>
               )}
               <p className="relative mt-6 text-sm text-muted">
-                ¿Buscas algo para tu evento?{" "}
+                ¿Buscas un pedido por mayor o para tu negocio?{" "}
                 <Link href="/custom" className="font-semibold text-brand underline underline-offset-4 dark:text-accent-soft">
-                  Pídelo como pedido para evento
+                  Escríbenos para pedidos por mayor
                 </Link>
               </p>
             </div>

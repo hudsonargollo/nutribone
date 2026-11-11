@@ -2,19 +2,18 @@ import { getSalesDaily, getAdminStats, getPaymentBreakdown } from "@/lib/admin-d
 import { formatPrice } from "@/lib/format";
 import { SalesChartPro } from "@/components/admin/sales-chart-pro";
 import { PaymentMethodPanel, SalesHighlightsPanel } from "@/components/admin/dashboard-insights";
-import { requireAdmin, scopeBranchId } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Analíticas" };
 
 export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
-  const session = await requireAdmin(); // layouts don't re-run on client navigation
-  const branchId = scopeBranchId(session);
+  await requireAdmin(); // layouts don't re-run on client navigation
   const [salesDaily, stats, payments] = await Promise.all([
-    getSalesDaily(365, branchId),
-    getAdminStats(branchId),
-    getPaymentBreakdown(branchId),
+    getSalesDaily(365),
+    getAdminStats(),
+    getPaymentBreakdown(),
   ]);
 
   const aov = stats.orders > 0 ? Math.round(stats.revenue / stats.orders) : 0;
@@ -37,7 +36,7 @@ export default async function AnalyticsPage() {
         {kpis.map((k) => (
           <div
             key={k.label}
-            className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)]"
+            className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)]"
           >
             <p className="text-[0.62rem] font-medium uppercase tracking-[0.16em] text-muted">{k.label}</p>
             <p className="mt-2 font-display text-2xl font-bold text-ink [font-variant-numeric:tabular-nums]">

@@ -7,11 +7,9 @@ import { CATALOG_TAG } from "./cache-tags";
 import type { CategoryView, ProductView, ProductFilters, ShopFacets } from "./types";
 
 // The storefront reads through these functions. The active catalog is one
-// cached snapshot (product + per-branch stock rows, shared across requests and
-// refreshed whenever the admin edits a product, a branch's stock, or an order
-// changes stock — see lib/cache-tags). Filters, facets and search are worked out
-// in memory. Availability is resolved for the branch the shopper picked; with
-// no branch selected it shows the chain-wide total so browsing still works.
+// cached snapshot (single online store — one stock count per product),
+// refreshed whenever the admin edits a product or an order changes stock
+// (see lib/cache-tags). Filters, facets and search are worked out in memory.
 // Without a database the bundled sample data is served so the UI stays previewable.
 
 let warned = false;
@@ -31,12 +29,7 @@ function warnFallback(err: unknown) {
   }
 }
 
-type SnapshotProduct = Omit<ProductView, "stock"> & {
-  stockByBranch: Record<string, number>;
-  totalStock: number;
-};
-
-type Snapshot = { products: SnapshotProduct[]; categories: CategoryView[] };
+type Snapshot = { products: ProductView[]; categories: CategoryView[] };
 
 // Cross-request cache (5 min safety net; normally refreshed by tag).
 const loadSnapshot = unstable_cache(
@@ -44,10 +37,7 @@ const loadSnapshot = unstable_cache(
     const [products, categories] = await Promise.all([
       prisma.product.findMany({
         where: { active: true },
-        include: {
-          category: { select: { name: true, slug: true } },
-          branchStock: { select: { branchId: true, stock: true, active: true } },
-        },
+        include: { category: { select: { name: true, slug: true } } },
         orderBy: { createdAt: "desc" },
       }),
       prisma.category.findMany({
@@ -56,35 +46,24 @@ const loadSnapshot = unstable_cache(
       }),
     ]);
     return {
-      products: products.map((p) => {
-        const stockByBranch: Record<string, number> = {};
-        let totalStock = 0;
-        for (const s of p.branchStock) {
-          if (!s.active) continue;
-          const n = Math.max(0, s.stock);
-          stockByBranch[s.branchId] = n;
-          totalStock += n;
-        }
-        return {
-          id: p.id,
-          name: p.name,
-          slug: p.slug,
-          description: p.description,
-          price: Number(p.price),
-          compareAtPrice: p.compareAtPrice == null ? null : Number(p.compareAtPrice),
-          material: p.material,
-          specs: p.specs ?? null,
-          images: p.images ?? [],
-          featured: p.featured,
-          category: p.category,
-          stockByBranch,
-          totalStock,
-        };
-      }),
+      products: products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        description: p.description,
+        price: Number(p.price),
+        compareAtPrice: p.compareAtPrice == null ? null : Number(p.compareAtPrice),
+        material: p.material,
+        specs: p.specs ?? null,
+        images: p.images ?? [],
+        featured: p.featured,
+        category: p.category,
+        stock: Math.max(0, p.stock),
+      })),
       categories: categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug, description: c.description })),
     };
   },
-  ["catalog-snapshot-v2"],
+  ["catalog-snapshot-v3"],
   { tags: [CATALOG_TAG], revalidate: 300 }
 );
 
@@ -94,28 +73,12 @@ const getSnapshot = cache(async (): Promise<Snapshot> => {
     return await loadSnapshot();
   } catch (err) {
     warnFallback(err);
-    return {
-      products: sampleProducts.map((p) => ({
-        ...p,
-        stockByBranch: {},
-        totalStock: p.stock,
-      })),
-      categories: sampleCategories,
-    };
+    return { products: sampleProducts, categories: sampleCategories };
   }
 });
 
-/** Resolve availability for a branch (or the chain-wide total when null). */
-function toView(p: SnapshotProduct, branchId?: string | null): ProductView {
-  return {
-    ...p,
-    stock: branchId ? (p.stockByBranch[branchId] ?? 0) : p.totalStock,
-  };
-}
-
-async function listFor(branchId?: string | null): Promise<ProductView[]> {
-  const { products } = await getSnapshot();
-  return products.map((p) => toView(p, branchId));
+async function list(): Promise<ProductView[]> {
+  return (await getSnapshot()).products;
 }
 
 // ---------- Categories ----------
@@ -133,14 +96,11 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryView | nu
 const onSaleNow = (p: ProductView) => p.compareAtPrice != null && p.compareAtPrice > p.price;
 
 /** Newest first unless a price sort is picked; `q` ranks by relevance. */
-export async function getProducts(
-  filters: ProductFilters = {},
-  branchId?: string | null
-): Promise<ProductView[]> {
+export async function getProducts(filters: ProductFilters = {}): Promise<ProductView[]> {
   const { categorySlug, q, minPrice, maxPrice, material, onSale, inStock, sort = "newest" } = filters;
-  const products = await listFor(branchId);
+  const products = await list();
 
-  let list = products.filter(
+  let filtered = products.filter(
     (p) =>
       (!categorySlug || p.category.slug === categorySlug) &&
       (!material || p.material === material) &&
@@ -149,16 +109,16 @@ export async function getProducts(
       (minPrice == null || p.price >= minPrice) &&
       (maxPrice == null || p.price <= maxPrice)
   );
-  if (q) list = applyQuery(list, q);
-  if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
-  else if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
-  return list;
+  if (q) filtered = applyQuery(filtered, q);
+  if (sort === "price-asc") filtered = [...filtered].sort((a, b) => a.price - b.price);
+  else if (sort === "price-desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
+  return filtered;
 }
 
-/** Products by id (cart refresh / buy-now), with availability for one branch. */
-export async function getProductsByIds(ids: string[], branchId?: string | null): Promise<ProductView[]> {
+/** Products by id (cart refresh / buy-now). */
+export async function getProductsByIds(ids: string[]): Promise<ProductView[]> {
   const wanted = new Set(ids);
-  return (await listFor(branchId)).filter((p) => wanted.has(p.id));
+  return (await list()).filter((p) => wanted.has(p.id));
 }
 
 /** The shop's `?q=` text filter: same typo-tolerant matching as /search. */
@@ -172,23 +132,19 @@ function applyQuery(list: ProductView[], q: string): ProductView[] {
   return searchCatalog(q, list, [...cats.values()]).products;
 }
 
-export async function getProductBySlug(slug: string, branchId?: string | null): Promise<ProductView | null> {
-  return (await listFor(branchId)).find((p) => p.slug === slug) ?? null;
+export async function getProductBySlug(slug: string): Promise<ProductView | null> {
+  return (await list()).find((p) => p.slug === slug) ?? null;
 }
 
 /** Featured pieces, newest first; the newest pieces when none are featured. */
-export async function getFeaturedProducts(limit = 4, branchId?: string | null): Promise<ProductView[]> {
-  const products = await listFor(branchId);
+export async function getFeaturedProducts(limit = 4): Promise<ProductView[]> {
+  const products = await list();
   const featured = products.filter((p) => p.featured);
   return (featured.length ? featured : products).slice(0, limit);
 }
 
-export async function getRelatedProducts(
-  product: ProductView,
-  branchId?: string | null,
-  limit = 4
-): Promise<ProductView[]> {
-  const products = await listFor(branchId);
+export async function getRelatedProducts(product: ProductView, limit = 4): Promise<ProductView[]> {
+  const products = await list();
   return products.filter((p) => p.category.slug === product.category.slug && p.id !== product.id).slice(0, limit);
 }
 
@@ -197,12 +153,11 @@ export async function getRelatedProducts(
 /** Full /search answer: ranked pieces plus how the query was read. All
  *  categories are passed (even empty ones) so an empty category can say "coming soon". */
 export async function searchStore(
-  q: string,
-  branchId?: string | null
+  q: string
 ): Promise<SearchResult & { categories: SearchCategory[]; all: ProductView[] }> {
-  const { categories: list } = await getSnapshot();
-  const products = await listFor(branchId);
-  const categories = list.map((c) => ({
+  const { categories: catRows } = await getSnapshot();
+  const products = await list();
+  const categories = catRows.map((c) => ({
     ...c,
     count: products.filter((p) => p.category.slug === c.slug).length,
   }));
@@ -213,12 +168,9 @@ export async function searchStore(
 
 /** Category counts (whole store) + price bounds, materials, sale and stock counts
  *  for the current category scope. */
-export async function getShopFacets(
-  categorySlug?: string,
-  branchId?: string | null
-): Promise<ShopFacets> {
+export async function getShopFacets(categorySlug?: string): Promise<ShopFacets> {
   const { categories } = await getSnapshot();
-  const rows = await listFor(branchId);
+  const rows = await list();
 
   const scoped = categorySlug ? rows.filter((r) => r.category.slug === categorySlug) : rows;
   const prices = (scoped.length ? scoped : rows).map((r) => r.price);

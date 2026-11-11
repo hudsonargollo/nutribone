@@ -119,7 +119,7 @@ export function PriceRange({ bounds: [lo, hi], min, max, onCommit }: Props) {
         {(["a", "b"] as const).map((which, i) => (
           <label
             key={which}
-            className={`flex items-center rounded-lg border border-[var(--line-strong)] bg-surface/80 pl-3 transition focus-within:border-accent focus-within:ring-2 focus-within:ring-[rgba(255,204,4,0.22)] ${
+            className={`flex items-center rounded-lg border border-[var(--line-strong)] bg-surface/80 pl-3 transition focus-within:border-accent focus-within:ring-2 focus-within:ring-[rgba(201,138,46,0.22)] ${
               i === 1 ? "col-start-3" : ""
             }`}
           >

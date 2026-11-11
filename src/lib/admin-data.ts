@@ -14,30 +14,25 @@ export type AdminStats = {
   monthRevenue: number;
 };
 
-export async function getAdminStats(branchId?: string | null): Promise<AdminStats> {
+export async function getAdminStats(): Promise<AdminStats> {
   try {
     const monthStart = new Date();
     monthStart.setDate(1);
     monthStart.setHours(0, 0, 0, 0);
-    const scope = branchId ? { branchId } : {};
     const low = (await getStoreSettings()).inventory.lowStockThreshold;
 
     const [products, orders, pendingOrders, revenueAgg, customers, lowStock, monthOrders, monthRevAgg] =
       await Promise.all([
         prisma.product.count(),
-        prisma.order.count({ where: scope }),
-        prisma.order.count({ where: { ...scope, status: "PENDING" } }),
-        prisma.order.aggregate({ _sum: { total: true }, where: { ...scope, status: { not: "CANCELLED" } } }),
-        branchId
-          ? prisma.customer.count({ where: { orders: { some: { branchId } } } })
-          : prisma.customer.count(),
-        branchId
-          ? prisma.branchStock.count({ where: { branchId, active: true, stock: { lte: low } } })
-          : prisma.branchStock.count({ where: { active: true, stock: { lte: low } } }),
-        prisma.order.count({ where: { ...scope, createdAt: { gte: monthStart } } }),
+        prisma.order.count(),
+        prisma.order.count({ where: { status: "PENDING" } }),
+        prisma.order.aggregate({ _sum: { total: true }, where: { status: { not: "CANCELLED" } } }),
+        prisma.customer.count(),
+        prisma.product.count({ where: { active: true, stock: { lte: low } } }),
+        prisma.order.count({ where: { createdAt: { gte: monthStart } } }),
         prisma.order.aggregate({
           _sum: { total: true },
-          where: { ...scope, status: { not: "CANCELLED" }, createdAt: { gte: monthStart } },
+          where: { status: { not: "CANCELLED" }, createdAt: { gte: monthStart } },
         }),
       ]);
     return {
@@ -69,14 +64,13 @@ export type AdminCustomerRow = {
   createdAt: string;
 };
 
-export async function getAdminCustomers(branchId?: string | null): Promise<{
+export async function getAdminCustomers(): Promise<{
   dbConnected: boolean;
   customers: AdminCustomerRow[];
 }> {
   try {
     const rows = await prisma.customer.findMany({
-      where: branchId ? { orders: { some: { branchId } } } : undefined,
-      include: { orders: { where: branchId ? { branchId } : undefined, select: { total: true, status: true } } },
+      include: { orders: { select: { total: true, status: true } } },
       orderBy: { createdAt: "desc" },
     });
     return {
@@ -141,16 +135,13 @@ export type AdminProduct = {
   category: string;
 };
 
-export async function getAdminProducts(branchId?: string | null): Promise<{
+export async function getAdminProducts(): Promise<{
   dbConnected: boolean;
   products: AdminProduct[];
 }> {
   try {
     const rows = await prisma.product.findMany({
-      include: {
-        category: { select: { name: true } },
-        branchStock: { where: branchId ? { branchId } : undefined, select: { stock: true } },
-      },
+      include: { category: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
     });
     return {
@@ -160,7 +151,7 @@ export async function getAdminProducts(branchId?: string | null): Promise<{
         name: p.name,
         slug: p.slug,
         price: Number(p.price),
-        stock: sumStock(p.branchStock),
+        stock: p.stock,
         featured: p.featured,
         active: p.active,
         category: p.category.name,
@@ -171,10 +162,6 @@ export async function getAdminProducts(branchId?: string | null): Promise<{
   }
 }
 
-function sumStock(rows: { stock: number }[]): number {
-  return rows.reduce((n, r) => n + Math.max(0, r.stock), 0);
-}
-
 export type AdminInventoryRow = {
   id: string;
   name: string;
@@ -183,15 +170,12 @@ export type AdminInventoryRow = {
   category: string;
   image: string | null;
   stock: number;
-  available: boolean;
-  catalogActive: boolean;
 };
 
-/** Per-branch stock for every active product in the shared catalog. */export async function getAdminInventory(
-  branchId: string,
+/** Stock for every active product in the catalog (one count per product). */
+export async function getAdminInventory(
   q?: string
 ): Promise<{ dbConnected: boolean; rows: AdminInventoryRow[] }> {
-  if (!branchId) return { dbConnected: true, rows: [] };
   try {
     const where = q
       ? {
@@ -205,29 +189,21 @@ export type AdminInventoryRow = {
       : { active: true };
     const products = await prisma.product.findMany({
       where,
-      include: {
-        category: { select: { name: true } },
-        branchStock: { where: { branchId }, select: { stock: true, active: true } },
-      },
+      include: { category: { select: { name: true } } },
       orderBy: { name: "asc" },
       take: 500,
     });
     return {
       dbConnected: true,
-      rows: products.map((p) => {
-        const row = p.branchStock[0];
-        return {
-          id: p.id,
-          name: p.name,
-          slug: p.slug,
-          sku: p.sku,
-          category: p.category.name,
-          image: p.images[0] ?? null,
-          stock: Math.max(0, row?.stock ?? 0),
-          available: row?.active ?? true,
-          catalogActive: p.active,
-        };
-      }),
+      rows: products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        sku: p.sku,
+        category: p.category.name,
+        image: p.images[0] ?? null,
+        stock: Math.max(0, p.stock),
+      })),
     };
   } catch {
     return { dbConnected: false, rows: [] };
@@ -245,6 +221,7 @@ export type AdminProductDetail = {
   material: string | null;
   specs: string | null;
   images: string[];
+  stock: number;
   featured: boolean;
   active: boolean;
   categoryId: string;
@@ -265,6 +242,7 @@ export async function getAdminProduct(id: string): Promise<AdminProductDetail | 
       material: p.material,
       specs: p.specs,
       images: p.images,
+      stock: p.stock,
       featured: p.featured,
       active: p.active,
       categoryId: p.categoryId,
@@ -289,8 +267,6 @@ export type AdminOrderRow = {
   id: string;
   orderNumber: string;
   customerName: string;
-  branchName: string;
-  fulfillment: string;
   total: number;
   status: string;
   paymentMethod: string;
@@ -299,17 +275,13 @@ export type AdminOrderRow = {
   itemCount: number;
 };
 
-export async function getAdminOrders(branchId?: string | null): Promise<{
+export async function getAdminOrders(): Promise<{
   dbConnected: boolean;
   orders: AdminOrderRow[];
 }> {
   try {
     const rows = await prisma.order.findMany({
-      where: branchId ? { branchId } : undefined,
-      include: {
-        items: { select: { quantity: true } },
-        branch: { select: { name: true } },
-      },
+      include: { items: { select: { quantity: true } } },
       orderBy: { createdAt: "desc" },
     });
     return {
@@ -318,8 +290,6 @@ export async function getAdminOrders(branchId?: string | null): Promise<{
         id: o.id,
         orderNumber: o.orderNumber,
         customerName: o.customerName,
-        branchName: o.branch.name,
-        fulfillment: o.fulfillment,
         total: Number(o.total),
         status: o.status,
         paymentMethod: o.paymentMethod,
@@ -333,25 +303,18 @@ export async function getAdminOrders(branchId?: string | null): Promise<{
   }
 }
 
-export async function getAdminOrder(id: string, branchId?: string | null) {
+export async function getAdminOrder(id: string) {
   try {
     const o = await prisma.order.findUnique({
       where: { id },
-      include: { items: true, branch: true },
+      include: { items: true },
     });
     if (!o) return null;
-    // Staff can only open orders belonging to their branch.
-    if (branchId && o.branchId !== branchId) return null;
     return {
       ...o,
       subtotal: Number(o.subtotal),
       shipping: Number(o.shipping),
       total: Number(o.total),
-      branch: {
-        ...o.branch,
-        flatFee: null,
-        freeThreshold: null,
-      },
       createdAt: o.createdAt.toISOString(),
       items: o.items.map((i) => ({ ...i, price: Number(i.price) })),
     };
@@ -511,15 +474,14 @@ function ymd(d: Date): string {
 
 // Continuous daily series (zero-filled) for the Amazon/Keepa-style zoomable chart.
 export async function getSalesDaily(
-  days = 365,
-  branchId?: string | null
+  days = 365
 ): Promise<{ dbConnected: boolean; points: DailyPoint[] }> {
   try {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
     start.setDate(start.getDate() - (days - 1));
     const orders = await prisma.order.findMany({
-      where: { status: { not: "CANCELLED" }, createdAt: { gte: start }, ...(branchId ? { branchId } : {}) },
+      where: { status: { not: "CANCELLED" }, createdAt: { gte: start } },
       select: { createdAt: true, total: true },
     });
     const map = new Map<string, { revenue: number; orders: number }>();
@@ -556,16 +518,15 @@ export type StorePerformance = {
   totalProducts: number;
 };
 
-export async function getStorePerformance(branchId?: string | null): Promise<StorePerformance> {
+export async function getStorePerformance(): Promise<StorePerformance> {
   try {
-    const scope = branchId ? { branchId } : {};
     const low = (await getStoreSettings()).inventory.lowStockThreshold;
     const [totalOrders, delivered, paid, totalProducts, inStock] = await Promise.all([
-      prisma.order.count({ where: { ...scope, status: { not: "CANCELLED" } } }),
-      prisma.order.count({ where: { ...scope, status: "DELIVERED" } }),
-      prisma.order.count({ where: { ...scope, paymentStatus: "PAID", status: { not: "CANCELLED" } } }),
+      prisma.order.count({ where: { status: { not: "CANCELLED" } } }),
+      prisma.order.count({ where: { status: "DELIVERED" } }),
+      prisma.order.count({ where: { paymentStatus: "PAID", status: { not: "CANCELLED" } } }),
       prisma.product.count({ where: { active: true } }),
-      prisma.branchStock.count({ where: { ...(branchId ? { branchId } : {}), active: true, stock: { gt: low } } }),
+      prisma.product.count({ where: { active: true, stock: { gt: low } } }),
     ]);
     const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 100) : 0);
     return {
@@ -589,10 +550,10 @@ export async function getStorePerformance(branchId?: string | null): Promise<Sto
   }
 }
 
-export async function getSalesInsights(branchId?: string | null): Promise<SalesInsights> {
+export async function getSalesInsights(): Promise<SalesInsights> {
   try {
     const orders = await prisma.order.findMany({
-      where: { status: { not: "CANCELLED" }, ...(branchId ? { branchId } : {}) },
+      where: { status: { not: "CANCELLED" } },
       select: { createdAt: true, total: true },
     });
     const rows: Row[] = orders.map((o) => ({ t: o.createdAt, v: Number(o.total) }));
@@ -627,16 +588,14 @@ export type TopProduct = {
 };
 export type CategorySales = { name: string; revenue: number; share: number };
 
-export async function getSalesBreakdown(branchId?: string | null): Promise<{
+export async function getSalesBreakdown(): Promise<{
   dbConnected: boolean;
   topProducts: TopProduct[];
   categories: CategorySales[];
 }> {
   try {
     const items = await prisma.orderItem.findMany({
-      where: {
-        order: { status: { not: "CANCELLED" }, ...(branchId ? { branchId } : {}) },
-      },
+      where: { order: { status: { not: "CANCELLED" } } },
       select: {
         productId: true,
         name: true,
@@ -684,7 +643,7 @@ export async function getSalesBreakdown(branchId?: string | null): Promise<{
 
 export type StatusCount = { status: string; count: number };
 
-export async function getOrderStatusBreakdown(branchId?: string | null): Promise<{
+export async function getOrderStatusBreakdown(): Promise<{
   dbConnected: boolean;
   counts: StatusCount[];
   total: number;
@@ -692,7 +651,6 @@ export async function getOrderStatusBreakdown(branchId?: string | null): Promise
   try {
     const grouped = await prisma.order.groupBy({
       by: ["status"],
-      where: branchId ? { branchId } : undefined,
       _count: { status: true },
     });
     const map = new Map(grouped.map((g) => [g.status as string, g._count.status]));
@@ -712,7 +670,7 @@ export type PaymentSlice = {
   share: number;
 };
 
-export async function getPaymentBreakdown(branchId?: string | null): Promise<{
+export async function getPaymentBreakdown(): Promise<{
   dbConnected: boolean;
   methods: PaymentSlice[];
   total: number;
@@ -720,15 +678,14 @@ export async function getPaymentBreakdown(branchId?: string | null): Promise<{
   try {
     const grouped = await prisma.order.groupBy({
       by: ["paymentMethod"],
-      where: { status: { not: "CANCELLED" }, ...(branchId ? { branchId } : {}) },
+      where: { status: { not: "CANCELLED" } },
       _sum: { total: true },
       _count: true,
     });
     const totalRev = grouped.reduce((s, g) => s + Number(g._sum.total ?? 0), 0);
     const LABELS: Record<string, string> = {
       COD: "Pago contra entrega",
-      PAYFAST: "Tarjeta (PayFast)",
-      SAFEPAY: "Safepay",
+      TRANSFER: "QR / transferencia",
     };
     const methods = grouped
       .map((g) => {
@@ -748,16 +705,13 @@ export async function getPaymentBreakdown(branchId?: string | null): Promise<{
   }
 }
 
-export async function getRecentCustomers(limit = 5, branchId?: string | null): Promise<{
+export async function getRecentCustomers(limit = 5): Promise<{
   dbConnected: boolean;
   customers: AdminCustomerRow[];
 }> {
   try {
     const rows = await prisma.customer.findMany({
-      where: branchId ? { orders: { some: { branchId } } } : undefined,
-      include: {
-        orders: { where: branchId ? { branchId } : undefined, select: { total: true, status: true } },
-      },
+      include: { orders: { select: { total: true, status: true } } },
       orderBy: { createdAt: "desc" },
       take: limit,
     });
@@ -777,93 +731,5 @@ export async function getRecentCustomers(limit = 5, branchId?: string | null): P
     };
   } catch {
     return { dbConnected: false, customers: [] };
-  }
-}
-
-/* ─────────────────────────  Branches  ───────────────────────── */
-
-export type AdminBranchRow = {
-  id: string;
-  name: string;
-  slug: string;
-  code: string;
-  address: string;
-  city: string;
-  phone: string | null;
-  whatsapp: string | null;
-  hours: string | null;
-  image: string | null;
-  mapsUrl: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  deliveryEnabled: boolean;
-  pickupEnabled: boolean;
-  flatFee: number | null;
-  freeThreshold: number | null;
-  active: boolean;
-  sortOrder: number;
-  orders: number;
-  products: number;
-  users: number;
-};
-
-function branchRow(b: {
-  id: string; name: string; slug: string; code: string; address: string; city: string;
-  phone: string | null; whatsapp: string | null; hours: string | null; image: string | null;
-  mapsUrl: string | null; latitude: number | null; longitude: number | null;
-  deliveryEnabled: boolean; pickupEnabled: boolean;
-  flatFee: unknown; freeThreshold: unknown; active: boolean; sortOrder: number;
-  _count: { orders: number; stock: number; users: number };
-}): AdminBranchRow {
-  return {
-    id: b.id,
-    name: b.name,
-    slug: b.slug,
-    code: b.code,
-    address: b.address,
-    city: b.city,
-    phone: b.phone,
-    whatsapp: b.whatsapp,
-    hours: b.hours,
-    image: b.image,
-    mapsUrl: b.mapsUrl,
-    latitude: b.latitude,
-    longitude: b.longitude,
-    deliveryEnabled: b.deliveryEnabled,
-    pickupEnabled: b.pickupEnabled,
-    flatFee: b.flatFee == null ? null : Number(b.flatFee),
-    freeThreshold: b.freeThreshold == null ? null : Number(b.freeThreshold),
-    active: b.active,
-    sortOrder: b.sortOrder,
-    orders: b._count.orders,
-    products: b._count.stock,
-    users: b._count.users,
-  };
-}
-
-export async function getAdminBranches(): Promise<{
-  dbConnected: boolean;
-  branches: AdminBranchRow[];
-}> {
-  try {
-    const rows = await prisma.branch.findMany({
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      include: { _count: { select: { orders: true, stock: true, users: true } } },
-    });
-    return { dbConnected: true, branches: rows.map(branchRow) };
-  } catch {
-    return { dbConnected: false, branches: [] };
-  }
-}
-
-export async function getAdminBranch(id: string): Promise<AdminBranchRow | null> {
-  try {
-    const b = await prisma.branch.findUnique({
-      where: { id },
-      include: { _count: { select: { orders: true, stock: true, users: true } } },
-    });
-    return b ? branchRow(b) : null;
-  } catch {
-    return null;
   }
 }

@@ -68,7 +68,7 @@ export default async function AdminMessagesPage() {
       <div className="mt-6 space-y-8">
         {!dbConnected && <DbBanner />}
 
-        <section className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)]">
+        <section className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)]">
           <h2 className="border-b border-[var(--line)] px-5 py-4 font-display text-xl font-semibold text-ink">Bandeja de entrada</h2>
           {messages.length === 0 ? (
             <p className="px-5 py-12 text-center text-sm text-muted">Aún no hay mensajes.</p>
@@ -107,7 +107,7 @@ export default async function AdminMessagesPage() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)]">
+        <section className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)]">
           <h2 className="border-b border-[var(--line)] px-5 py-4 font-display text-xl font-semibold text-ink">
             Suscriptores <span className="text-sm font-normal text-muted">({subscriberCount})</span>
           </h2>

@@ -4,7 +4,7 @@ import { prisma } from "./prisma";
 import type { LoyaltySettings } from "./settings-shared";
 import { previewLoyalty, stampCard, type LoyaltyLine } from "./loyalty-shared";
 
-// Server side of Club Camba. The ledger (LoyaltyEntry) is append-only and holds
+// Server side of Club NutriBone. The ledger (LoyaltyEntry) is append-only and holds
 // signed deltas, so a balance is always the sum of its rows: earning, spending,
 // refunds and manual corrections are all just new rows. Nothing is ever
 // rewritten, which keeps customer disputes answerable.
@@ -135,8 +135,8 @@ export async function redeemStamps(
   });
 }
 
-// Redemption codes are handed to the branch at pickup, so they stay short and
-// unreadable-by-accident (same no-0/O/1/I/L alphabet as order numbers).
+// Redemption codes are handed over when claiming a reward, so they stay short
+// and unreadable-by-accident (same no-0/O/1/I/L alphabet as order numbers).
 const REDEEM_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
 
 function generateRedemptionCode(): string {
@@ -151,7 +151,6 @@ export type RedeemResult = { ok: true; code: string } | { ok: false; error: stri
 export async function redeemReward(input: {
   customerId: string;
   rewardId: string;
-  branchId?: string | null;
   rules: LoyaltySettings;
 }): Promise<RedeemResult> {
   if (!input.rules.enabled) return { ok: false, error: "El programa de puntos está pausado." };
@@ -167,7 +166,7 @@ export async function redeemReward(input: {
         if (reward.stock <= 0)
           return { ok: false, error: `"${reward.name}" está agotado por ahora.` };
 
-        // Conditional decrement, same trick as branch stock: two taps can't
+        // Conditional decrement, same trick as product stock: two taps can't
         // spend the same points twice.
         await tx.loyaltyEntry.create({
           data: {
@@ -192,7 +191,6 @@ export async function redeemReward(input: {
             rewardId: reward.id,
             rewardName: reward.name,
             costPoints: reward.costPoints,
-            branchId: input.branchId ?? null,
           },
         });
         return { ok: true as const, code };

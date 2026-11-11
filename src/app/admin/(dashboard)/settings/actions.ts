@@ -166,30 +166,18 @@ export async function addTeamMember(_p: SettingsState, fd: FormData): Promise<Se
     unstable_rethrow(e); // a signed-out redirect must reach the browser
     return { error: (e as Error).message };
   }
-  const values = form(fd, ["name", "email", "role", "branchId"]);
+  const values = form(fd, ["name", "email", "role"]);
   const password = String(fd.get("password") ?? "");
   const parsed = z
     .object({
       name: z.string().max(120),
       email: z.string().email("Ingresa un correo válido").max(200),
       role: z.enum(["ADMIN", "STAFF"]),
-      branchId: z.string().optional(),
     })
     .safeParse(values);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message, values };
   if (password.length < ADMIN_MIN_PASSWORD)
     return { error: `La contraseña debe tener al menos ${ADMIN_MIN_PASSWORD} caracteres.`, values };
-
-  // Staff logins are bound to exactly one store; admins are global.
-  let branchId: string | null = null;
-  if (parsed.data.role === "STAFF") {
-    if (!parsed.data.branchId) return { error: "Elige la sucursal de este usuario.", values };
-    const branch = await prisma.branch
-      .findFirst({ where: { id: parsed.data.branchId, active: true }, select: { id: true } })
-      .catch(() => null);
-    if (!branch) return { error: "La sucursal elegida no existe.", values };
-    branchId = branch.id;
-  }
 
   try {
     await prisma.user.create({
@@ -197,7 +185,6 @@ export async function addTeamMember(_p: SettingsState, fd: FormData): Promise<Se
         name: parsed.data.name || null,
         email: parsed.data.email.toLowerCase(),
         role: parsed.data.role,
-        branchId,
         passwordHash: hashPassword(password),
       },
     });
@@ -207,26 +194,6 @@ export async function addTeamMember(_p: SettingsState, fd: FormData): Promise<Se
   }
   revalidatePath("/admin/settings");
   return { ok: true };
-}
-
-/** Move a staff member to another branch (or make an admin global). */
-export async function setTeamMemberBranch(userId: string, formData: FormData): Promise<void> {
-  await requireOwner();
-  const branchIdRaw = String(formData.get("branchId") ?? "").trim();
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
-  if (!user) return;
-
-  if (user.role === "ADMIN") {
-    await prisma.user.update({ where: { id: userId }, data: { branchId: null } });
-  } else {
-    if (!branchIdRaw) return;
-    const branch = await prisma.branch
-      .findFirst({ where: { id: branchIdRaw, active: true }, select: { id: true } })
-      .catch(() => null);
-    if (!branch) return;
-    await prisma.user.update({ where: { id: userId }, data: { branchId: branch.id } });
-  }
-  revalidatePath("/admin/settings");
 }
 
 export async function removeTeamMember(id: string): Promise<void> {

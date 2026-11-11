@@ -5,6 +5,11 @@ export function formatPrice(amount: number): string {
   return `Bs ${bo.format(Math.round(amount))}`;
 }
 
+/** Price 0 is a placeholder until the client confirms it in Admin → Products. */
+export function priceLabel(amount: number): string {
+  return amount > 0 ? formatPrice(amount) : "Precio por confirmar";
+}
+
 /** Legacy `material` field from the old catalog is sometimes a filler string. */
 export function visiblePack(material: string | null | undefined): string | null {
   if (!material || /f[oó]rmula|matem[aá]tica/i.test(material)) return null;

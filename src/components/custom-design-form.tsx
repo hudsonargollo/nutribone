@@ -35,7 +35,7 @@ export function CustomDesignForm({ whatsappUrl }: { whatsappUrl?: string }) {
           href="/shop"
           className="mt-6 inline-block rounded-full border border-[var(--line-strong)] px-7 py-2.5 text-sm font-medium text-ink transition hover:border-accent hover:text-accent-strong"
         >
-          Explora el menú mientras tanto
+          Explora la tienda mientras tanto
         </Link>
       </div>
     );
@@ -90,7 +90,7 @@ export function CustomDesignForm({ whatsappUrl }: { whatsappUrl?: string }) {
             {...bind("details")}
             rows={5}
             maxLength={3000}
-            placeholder="Cuéntanos qué necesitas — cuántas personas, qué platos te gustarían y para cuándo…"
+            placeholder="Cuéntanos qué necesitas — qué producto, qué cantidad y para cuándo…"
             className={`${control} resize-y`}
           />
         )}
@@ -105,7 +105,7 @@ export function CustomDesignForm({ whatsappUrl }: { whatsappUrl?: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full bg-accent px-9 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60"
+          className="rounded-full bg-accent px-9 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60"
         >
           {pending ? "Enviando…" : "Enviar pedido"}
         </button>

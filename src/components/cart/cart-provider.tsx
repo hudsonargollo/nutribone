@@ -38,7 +38,7 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const STORAGE_KEY = "casadelcamba-cart-v1";
+const STORAGE_KEY = "nutribone-cart-v1";
 const EMPTY: CartItem[] = [];
 
 // ---------- localStorage-backed external store (synced across tabs) ----------

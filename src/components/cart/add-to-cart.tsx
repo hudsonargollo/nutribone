@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart, type CartItem } from "./cart-provider";
 import { useToast } from "@/components/ui/toast";
 import { formatPrice } from "@/lib/format";
+import { CONTACT } from "@/lib/contact";
 
 export function AddToCart({ product }: { product: Omit<CartItem, "quantity"> }) {
   const { add } = useCart();
@@ -33,6 +34,21 @@ export function AddToCart({ product }: { product: Omit<CartItem, "quantity"> }) 
   // Checks out just this product (the rest of the cart is left untouched).
   function handleBuyNow() {
     router.push(`/checkout?buy=${encodeURIComponent(product.slug)}&qty=${qty}`);
+  }
+
+  if (product.price <= 0) {
+    const href = CONTACT.whatsappUrl
+      ? `${CONTACT.whatsappUrl}?text=${encodeURIComponent(`Hola NutriBone, quiero pedir ${product.name}. ¿Me confirman precio y disponibilidad?`)}`
+      : "/contact";
+    return (
+      <a
+        href={href}
+        {...(CONTACT.whatsappUrl ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-brand px-8 py-3.5 text-sm font-semibold uppercase tracking-[0.06em] text-light transition hover:bg-brand-deep"
+      >
+        Pedir por WhatsApp
+      </a>
+    );
   }
 
   if (soldOut) {
@@ -88,8 +104,8 @@ export function AddToCart({ product }: { product: Omit<CartItem, "quantity"> }) 
           onClick={handleAdd}
           className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.06em] transition duration-200 active:scale-[0.98] sm:px-7 ${
             added
-              ? "bg-accent text-brand-deep shadow-[0_16px_34px_-16px_rgba(255,204,4,0.95)]"
-              : "bg-brand text-light shadow-[0_16px_34px_-16px_rgba(76,138,35,0.8)] hover:bg-brand-deep"
+              ? "bg-accent text-brand-deep shadow-[0_16px_34px_-16px_rgba(201,138,46,0.95)]"
+              : "bg-brand text-light shadow-[0_16px_34px_-16px_rgba(58,90,58,0.8)] hover:bg-brand-deep"
           }`}
         >
           {added ? <CheckIcon /> : <CartIcon />}
@@ -105,7 +121,7 @@ export function AddToCart({ product }: { product: Omit<CartItem, "quantity"> }) 
       <button
         type="button"
         onClick={handleBuyNow}
-        className="w-full rounded-full bg-gradient-to-r from-accent-soft to-accent px-8 py-3.5 text-sm font-semibold uppercase tracking-[0.08em] text-brand shadow-[0_14px_34px_-14px_rgba(255,204,4,0.7)] transition hover:opacity-90"
+        className="w-full rounded-full bg-gradient-to-r from-accent-soft to-accent px-8 py-3.5 text-sm font-semibold uppercase tracking-[0.08em] text-brand shadow-[0_14px_34px_-14px_rgba(201,138,46,0.7)] transition hover:opacity-90"
       >
         Comprar ahora
       </button>

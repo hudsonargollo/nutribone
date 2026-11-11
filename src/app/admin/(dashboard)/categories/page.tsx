@@ -22,7 +22,7 @@ export default async function AdminCategoriesPage() {
         {/* List */}
         <div className="min-w-0">
           {!dbConnected && <DbBanner />}
-          <div className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)]">
+          <div className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)]">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -68,7 +68,7 @@ export default async function AdminCategoriesPage() {
 
         {/* Add form */}
         <aside>
-          <div className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-24px_rgba(29,58,14,0.4)]">
+          <div className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-24px_rgba(31,51,32,0.4)]">
             <h2 className="mb-4 font-display text-lg font-semibold text-ink">Agregar una categoría</h2>
             <AddCategoryForm />
           </div>

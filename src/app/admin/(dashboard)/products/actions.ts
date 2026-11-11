@@ -12,7 +12,7 @@ export type ProductFormState = { error?: string; values?: Record<string, string>
 
 // Echoed back on errors: React 19 resets the form after the action, so without
 // this the admin would lose everything they typed.
-const FIELDS = ["name", "slug", "description", "price", "compareAtPrice", "sku", "material", "specs", "categoryId", "featured", "active", "initialStock"];
+const FIELDS = ["name", "slug", "description", "price", "compareAtPrice", "sku", "material", "specs", "categoryId", "featured", "active", "stock"];
 function keep(fd: FormData): Record<string, string> {
   return Object.fromEntries(FIELDS.map((k) => [k, String(fd.get(k) ?? "")]));
 }
@@ -30,7 +30,7 @@ const schema = z.object({
   images: z.string().optional(),
   featured: z.boolean(),
   active: z.boolean(),
-  initialStock: z.coerce.number().int().min(0).max(100000),
+  stock: z.coerce.number().int().min(0).max(100000),
 }).refine((d) => !d.active || (d.images ?? "").split(/[\n,]/).some((u) => u.trim()), {
   // A live piece without a photo shows as a blank tile in the shop.
   message: "Agrega al menos una foto para publicar o desactiva la publicación para guardarlo como borrador.",
@@ -51,7 +51,7 @@ function parse(formData: FormData) {
     images: formData.get("images"),
     featured: formData.get("featured") === "on",
     active: formData.get("active") === "on",
-    initialStock: formData.get("initialStock") || 0,
+    stock: formData.get("stock") || 0,
   });
 }
 
@@ -72,6 +72,7 @@ function toData(d: z.infer<typeof schema>) {
       .filter(Boolean),
     featured: d.featured,
     active: d.active,
+    stock: d.stock,
   };
 }
 
@@ -104,20 +105,10 @@ async function createNewProduct(formData: FormData, isCombo: boolean): Promise<P
         ? (await tx.category.upsert({
             where: { slug: "combos" },
             update: {},
-            create: { name: "Combos", slug: "combos", description: "Combos creados por Casa del Camba." },
+            create: { name: "Combos", slug: "combos", description: "Combos creados por NutriBone." },
           })).id
         : parsed.data.categoryId;
-      const product = await tx.product.create({ data: { ...toData(parsed.data), categoryId } });
-      const branches = await tx.branch.findMany({ where: { active: true }, select: { id: true } });
-      if (branches.length) {
-        await tx.branchStock.createMany({
-          data: branches.map((b) => ({
-            branchId: b.id,
-            productId: product.id,
-            stock: isCombo ? parsed.data.initialStock : 0,
-          })),
-        });
-      }
+      await tx.product.create({ data: { ...toData(parsed.data), categoryId } });
     });
   } catch (err) {
     return { error: dbError(err), values: keep(formData) };

@@ -4,83 +4,83 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ============================================================
-   Casa del Camba — brand theme
-   Camba green + sun yellow + warm near-black, taken from the
-   client's "La Casa del Camba" logo (palm, sun and orange roof).
+   NutriBone — brand theme
+   Cream + forest green + sage + broth amber, taken from the
+   client's packaging and Instagram visual identity.
    ============================================================ */
 @theme {
-  /* Brand — camba green (darkened from the logo's #76b72d for white text) */
-  --color-brand: #4c8a23;      /* primary green */
-  --color-brand-dark: #3c6e1b;
-  --color-brand-deep: #1d3a0e; /* dark green surfaces */
-  --color-panel: #eef6e4;      /* soft green panel */
-  --color-panel-2: #dcecc6;
+  /* Brand — forest green */
+  --color-brand: #3a5a3a;      /* primary green */
+  --color-brand-dark: #2e4a2e;
+  --color-brand-deep: #1f3320; /* dark green surfaces */
+  --color-panel: #eef0e2;      /* soft sage panel */
+  --color-panel-2: #e0e5cd;
 
-  /* Accent — sun yellow (buttons stay bright, never mustard) */
-  --color-accent: #ffcc04;
-  --color-accent-soft: #ffe066;
-  --color-accent-strong: #9a6b00; /* readable gold for text on light */
-  --color-gold: #ffe066;
+  /* Accent — broth amber / liquid gold */
+  --color-accent: #c98a2e;
+  --color-accent-soft: #e3b264;
+  --color-accent-strong: #8a5a14; /* readable amber for text on light */
+  --color-gold: #e3b264;
 
-  /* Neutrals — warm white */
-  --color-ink: #1a1f14;
-  --color-cream: #f7f8f1;
-  --color-cream-soft: #fbfcf6;
-  --color-sand: #eff3e4;
+  /* Neutrals — warm cream */
+  --color-ink: #22291d;
+  --color-cream: #f7f3ea;
+  --color-cream-soft: #fbf8f1;
+  --color-sand: #efe9dc;
   --color-surface: #ffffff;    /* cards / inputs (flips in dark mode) */
-  --color-light: #f9faf4;      /* fixed white — text on dark surfaces (never flips) */
-  --color-muted: #66735a;      /* muted text on light */
-  --color-muted-dark: #c6d8b0; /* muted text on dark green */
+  --color-light: #faf7f0;      /* fixed white — text on dark surfaces (never flips) */
+  --color-muted: #6b705c;      /* muted text on light */
+  --color-muted-dark: #c9d2b8; /* muted text on dark green */
 
   /* Form feedback */
   --color-ok: #2f7d5c;
   --color-bad: #b3261e;
 
   /* Fonts (wired via next/font in layout.tsx) */
-  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   color-scheme: light;
-  --background: #f7f8f1;
-  --foreground: #1a1f14;
-  --line: rgba(26, 31, 20, 0.14);
-  --line-strong: rgba(26, 31, 20, 0.34);
-  --frame: rgba(26, 31, 20, 0.55);
+  --background: #f7f3ea;
+  --foreground: #22291d;
+  --line: rgba(34, 41, 29, 0.14);
+  --line-strong: rgba(34, 41, 29, 0.34);
+  --frame: rgba(34, 41, 29, 0.55);
 }
 
 /* ---------- Dark theme (toggle sets data-theme="dark" on <html>) ---------- */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --color-brand: #76b72d;
-  --color-brand-dark: #6aa328;
-  --color-brand-deep: #16290b;
-  --color-panel: #151d0f;
-  --color-panel-2: #1b2613;
+  --color-brand: #7d9c6a;
+  --color-brand-dark: #6f8c5e;
+  --color-brand-deep: #131c10;
+  --color-panel: #1a2315;
+  --color-panel-2: #212c1a;
 
-  --color-accent: #ffcc04;
-  --color-accent-soft: #ffe066;
-  --color-accent-strong: #f0b400;
-  --color-gold: #ffe066;
+  --color-accent: #d99b3d;
+  --color-accent-soft: #e8b96a;
+  --color-accent-strong: #e0aa4e;
+  --color-gold: #e8b96a;
 
-  --color-ink: #eef4e4;
-  --color-cream: #10160b;
-  --color-cream-soft: #151c0f;
-  --color-sand: #1c2613;
-  --color-surface: #161e10;
-  --color-light: #f9faf4;
-  --color-muted: #a4b691;
-  --color-muted-dark: #c6d8b0;
+  --color-ink: #eef0e2;
+  --color-cream: #141a10;
+  --color-cream-soft: #192113;
+  --color-sand: #202a18;
+  --color-surface: #1b2415;
+  --color-light: #faf7f0;
+  --color-muted: #a8b394;
+  --color-muted-dark: #c9d2b8;
   --color-ok: #6cc59a;
   --color-bad: #f08a80;
 
-  --background: #10160b;
-  --foreground: #eef4e4;
-  --line: rgba(238, 244, 228, 0.14);
-  --line-strong: rgba(238, 244, 228, 0.30);
-  --frame: rgba(255, 204, 4, 0.45);
+  --background: #141a10;
+  --foreground: #eef0e2;
+  --line: rgba(238, 240, 226, 0.14);
+  --line-strong: rgba(238, 240, 226, 0.30);
+  --frame: rgba(201, 138, 46, 0.45);
 }
 
 * {
@@ -142,7 +142,7 @@ p {
 
 /* Brand gradient text utility */
 .brand-text {
-  background: linear-gradient(120deg, var(--color-brand), #76b72d 55%, var(--color-accent-strong));
+  background: linear-gradient(120deg, var(--color-brand), #7d8c5c 55%, var(--color-accent-strong));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -223,9 +223,9 @@ p {
 }
 /* Soft attention pulse for the chat launcher */
 @keyframes chatpulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 199, 44, 0.55); }
-  70% { box-shadow: 0 0 0 14px rgba(255, 199, 44, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 199, 44, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(201, 138, 46, 0.55); }
+  70% { box-shadow: 0 0 0 14px rgba(201, 138, 46, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(201, 138, 46, 0); }
 }
 .animate-chatpulse {
   animation: chatpulse 2.6s ease-out infinite;

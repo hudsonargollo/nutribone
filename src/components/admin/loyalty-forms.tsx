@@ -6,7 +6,7 @@ import { deleteReward, saveLoyaltyRules, saveReward, adjustCustomer, type Loyalt
 import type { LoyaltySettings } from "@/lib/settings-shared";
 
 const input =
-  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(255,204,4,0.2)] disabled:opacity-60";
+  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(201,138,46,0.2)] disabled:opacity-60";
 const labelCls = "mb-1.5 block text-xs font-medium uppercase tracking-[0.1em] text-muted";
 const saveBtn =
   "rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-brand-deep transition hover:bg-accent-soft disabled:opacity-60";
@@ -42,7 +42,7 @@ function Card({
   return (
     <section
       id={id}
-      className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6"
+      className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6"
     >
       <h2 className="font-display text-xl font-semibold text-ink">{title}</h2>
       <p className="mt-1 text-sm text-muted">{description}</p>
@@ -153,7 +153,7 @@ export function LoyaltyRulesForm({
                 maxLength={40}
                 className={input}
               />
-              <p className="mt-1 text-xs text-muted">Aparece en el menú, el pie y la página del club.</p>
+              <p className="mt-1 text-xs text-muted">Aparece en la tienda, el pie y la página del club.</p>
             </div>
             <Num
               name="stampsToFree"
@@ -212,7 +212,7 @@ export function LoyaltyRulesForm({
                   className="h-4 w-4 accent-[var(--color-accent-strong)]"
                 />
                 {value === "all"
-                  ? "Todo el menú"
+                  ? "Toda la tienda"
                   : value === "category"
                     ? "Solo estas categorías"
                     : "Solo estos productos"}

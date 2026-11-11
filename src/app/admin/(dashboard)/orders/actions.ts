@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, canAccessBranch } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 import { bookShipment, isCourier } from "@/lib/couriers";
 import { cancelOrderAndRestock } from "@/lib/orders";
 import {
@@ -23,7 +23,7 @@ export async function bookShipmentAction(
   _prev: ShipState,
   formData: FormData
 ): Promise<ShipState> {
-  const session = await requireAdmin();
+  await requireAdmin();
   const courier = String(formData.get("courier") || "");
   if (!isCourier(courier)) return { error: "Elige una empresa de envío." };
 
@@ -36,14 +36,13 @@ export async function bookShipmentAction(
   } catch {
     return { error: "Base de datos no disponible. Inténtalo de nuevo." };
   }
-  if (!order || !canAccessBranch(session, order.branchId)) return { error: "Pedido no encontrado." };
-  if (order.fulfillment === "PICKUP") return { error: "Este pedido es para retiro en tienda, no requiere envío." };
+  if (!order) return { error: "Pedido no encontrado." };
   if (order.trackingNumber) return { error: "Este pedido ya está reservado con una empresa de envío." };
   if (order.status === "CANCELLED" || order.status === "DELIVERED") {
     return { error: "Un pedido cancelado o entregado no se puede enviar." };
   }
   if (order.paymentMethod !== "COD" && order.paymentStatus !== "PAID") {
-    return { error: "Este pedido en línea aún no se ha pagado." };
+    return { error: "Este pedido aún no se ha pagado." };
   }
 
   // Claim the order first (atomic) so a double-click or a second admin can't
@@ -66,8 +65,8 @@ export async function bookShipmentAction(
       customerName: order.customerName,
       email: order.email,
       phone: order.phone,
-      address: order.address ?? "",
-      city: order.city ?? "",
+      address: order.address,
+      city: order.city,
       total: Number(order.total),
       paymentMethod: order.paymentMethod,
       itemCount,
@@ -107,15 +106,15 @@ export async function updateOrderStatus(
   _prev: StatusState,
   formData: FormData
 ): Promise<StatusState> {
-  const session = await requireAdmin();
+  await requireAdmin();
   const status = String(formData.get("status")) as OrderStatus;
   if (!ORDER_STATUSES.includes(status)) return { error: "Estado no válido." };
   try {
     const order = await prisma.order.findUnique({
       where: { id },
-      select: { status: true, branchId: true },
+      select: { status: true },
     });
-    if (!order || !canAccessBranch(session, order.branchId)) return { error: "Pedido no encontrado." };
+    if (!order) return { error: "Pedido no encontrado." };
     if (order.status === status) return { ok: true };
     if (!canMoveOrder(order.status, status)) {
       return {
@@ -143,15 +142,15 @@ export async function updatePaymentStatus(
   _prev: StatusState,
   formData: FormData
 ): Promise<StatusState> {
-  const session = await requireAdmin();
+  await requireAdmin();
   const paymentStatus = String(formData.get("paymentStatus")) as PaymentStatus;
   if (!PAYMENT_STATUSES.includes(paymentStatus)) return { error: "Estado de pago no válido." };
   try {
     const order = await prisma.order.findUnique({
       where: { id },
-      select: { paymentStatus: true, branchId: true },
+      select: { paymentStatus: true },
     });
-    if (!order || !canAccessBranch(session, order.branchId)) return { error: "Pedido no encontrado." };
+    if (!order) return { error: "Pedido no encontrado." };
     if (order.paymentStatus === paymentStatus) return { ok: true };
     if (!canMovePayment(order.paymentStatus, paymentStatus)) {
       return {

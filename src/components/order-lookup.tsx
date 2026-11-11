@@ -21,14 +21,14 @@ export function OrderLookup({ defaultOrder = "" }: { defaultOrder?: string }) {
           name="order"
           defaultValue={state.values?.order ?? defaultOrder}
           required
-          placeholder="Número de pedido (ej. CC01-XXXXXX-XXXXXXXX)"
+          placeholder="Número de pedido (ej. NB-XXXXXX-XXXXXXXX)"
           className={inputCls}
         />
         <input name="email" type="email" required placeholder="Correo usado al pagar" defaultValue={state.values?.email} className={inputCls} />
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-full bg-accent px-8 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60"
+          className="w-full rounded-full bg-accent px-8 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60"
         >
           {pending ? "Buscando…" : "Rastrear pedido"}
         </button>

@@ -10,7 +10,7 @@ import type {
 } from "@/lib/admin-data";
 
 const card =
-  "rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6";
+  "rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6";
 
 function emptyNote(text: string) {
   return (
@@ -154,9 +154,8 @@ export function RecentCustomersPanel({ customers }: { customers: AdminCustomerRo
 
 /* ── Revenue by payment method ── */
 const PAY_COLORS: Record<string, string> = {
-  COD: "#ef7d06",
-  PAYFAST: "#6366f1",
-  SAFEPAY: "#10b981",
+  COD: "#3a5a3a",
+  TRANSFER: "#c98a2e",
 };
 
 export function PaymentMethodPanel({ methods }: { methods: PaymentSlice[] }) {

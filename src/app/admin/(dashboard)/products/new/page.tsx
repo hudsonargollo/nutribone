@@ -21,7 +21,7 @@ export default async function NewProductPage({ searchParams }: PageProps<"/admin
       <h1 className="mt-2 font-display text-3xl font-semibold text-ink">{isCombo ? "Crear combo" : "Agregar producto"}</h1>
       {isCombo && (
         <p className="mt-3 max-w-2xl text-sm text-muted">
-          Define qué incluye, su precio y su foto. Guárdalo como borrador o marca «Publicar en el menú» para ofrecerlo junto a los platos de la casa.
+          Define qué incluye, su precio y su foto. Guárdalo como borrador o marca «Publicar en la tienda» para ofrecerlo junto a los productos de la casa.
         </p>
       )}
 

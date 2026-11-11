@@ -22,7 +22,7 @@ export const CONTACT = {
   phoneHref: phone ? `tel:${phone.replace(/[^0-9+]/g, "")}` : "",
   email: clean(process.env.NEXT_PUBLIC_CONTACT_EMAIL),
   city: clean(process.env.NEXT_PUBLIC_CONTACT_CITY) || STORE_LOCATION,
-  hours: clean(process.env.NEXT_PUBLIC_CONTACT_HOURS) || "Lunes a domingo · 11:00 a 23:00",
+  hours: clean(process.env.NEXT_PUBLIC_CONTACT_HOURS) || "Atención por WhatsApp",
   instagram: clean(process.env.NEXT_PUBLIC_INSTAGRAM_URL),
   facebook: clean(process.env.NEXT_PUBLIC_FACEBOOK_URL),
   tiktok: clean(process.env.NEXT_PUBLIC_TIKTOK_URL),

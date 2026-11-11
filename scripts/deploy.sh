@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build the store and deploy the standalone output to /var/www/casadelcamba.
+# Build the store and deploy the standalone output to /var/www/nutribone.
 # Production data in <deploy>/uploads is never touched.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEPLOY_DIR="${DEPLOY_DIR:-/var/www/casadelcamba}"
-SERVICE="${SERVICE:-casadelcamba.service}"
-HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3005/}"
+DEPLOY_DIR="${DEPLOY_DIR:-/var/www/nutribone}"
+SERVICE="${SERVICE:-nutribone.service}"
+HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3017/}"
 
 cd "$ROOT"
 

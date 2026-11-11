@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { Emblem } from "@/components/brand/emblem";
+import { Emblem, Wordmark } from "@/components/brand/emblem";
 import { AdminNav } from "./admin-nav";
 import { AdminMobileNav } from "./admin-mobile-nav";
 import { OrderNotifications } from "./order-notifications";
 import { logoutAction } from "@/app/admin/login/actions";
 
-const STORAGE_KEY = "casadelcamba-admin-collapsed";
+const STORAGE_KEY = "nutribone-admin-collapsed";
 
 // Sidebar collapsed state persisted in localStorage (tiny external store).
 const collapseListeners = new Set<() => void>();
@@ -35,12 +35,10 @@ function subscribeCollapsed(l: () => void) {
 export function AdminShell({
   email,
   role = "ADMIN",
-  branchName = null,
   children,
 }: {
   email: string;
   role?: string;
-  branchName?: string | null;
   children: React.ReactNode;
 }) {
   const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
@@ -76,20 +74,13 @@ export function AdminShell({
         {/* Brand — full logo; the square emblem is only for the collapsed rail. */}
         <Link
           href="/admin"
-          aria-label="Casa del Camba — panel"
+          aria-label="NutriBone — panel"
           className="flex h-16 shrink-0 items-center justify-center border-b border-[rgba(163,212,120,0.2)] px-4 md:h-20"
         >
           {collapsed ? (
             <Emblem size={34} className="shrink-0 text-accent" />
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src="/images/casadelcamba-logo.png"
-              alt="Casa del Camba"
-              width={228}
-              height={169}
-              className="h-[68px] w-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.45)]"
-            />
+            <Wordmark className="text-light" />
           )}
         </Link>
 
@@ -104,11 +95,7 @@ export function AdminShell({
             style={labelStyle}
             className={`truncate px-3 pb-1 text-xs text-light/70 ${collapsed ? "opacity-0" : "opacity-100"}`}
           >
-            {role === "ADMIN"
-              ? "Todas las sucursales"
-              : branchName
-                ? `Sucursal: ${branchName}`
-                : "Sin sucursal asignada"}
+            {role === "ADMIN" ? "Administrador" : "Personal"}
           </p>
           <p
             style={labelStyle}
@@ -168,15 +155,8 @@ export function AdminShell({
               </svg>
             </button>
             {/* Mobile brand */}
-            <Link href="/admin" aria-label="Casa del Camba — panel" className="md:hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/casadelcamba-logo.png"
-                alt="Casa del Camba"
-                width={228}
-                height={169}
-                className="h-8 w-auto"
-              />
+            <Link href="/admin" aria-label="NutriBone — panel" className="md:hidden">
+              <Wordmark className="text-light" sub={false} />
             </Link>
           </div>
 

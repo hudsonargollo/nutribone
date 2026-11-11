@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ProductView } from "@/lib/types";
-import { formatPrice, discountPercent, savingsOf, visiblePack } from "@/lib/format";
+import { formatPrice, priceLabel, discountPercent, savingsOf, visiblePack } from "@/lib/format";
 import { SaleRibbon, SaveLine } from "./ui/sale-badge";
 import { ProductImage } from "./product-image";
 import { QuickAdd } from "./quick-add";
@@ -31,7 +31,7 @@ export function ProductCard({ product }: { product: ProductView }) {
 
   return (
     <div
-      className={`group flex h-full flex-col overflow-hidden rounded-xl border transition hover:border-accent hover:shadow-[0_18px_40px_-24px_rgba(29,58,14,0.5)] ${
+      className={`group flex h-full flex-col overflow-hidden rounded-xl border transition hover:border-accent hover:shadow-[0_18px_40px_-24px_rgba(31,51,32,0.5)] ${
         off ? "border-accent/55 bg-surface/70" : "border-[var(--line)] bg-gradient-to-b from-surface/80 to-cream-soft/60"
       }`}
     >
@@ -42,7 +42,7 @@ export function ProductCard({ product }: { product: ProductView }) {
         {/* keeps packshots on white while the card around them stays brand-warm */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_70%_at_50%_42%,transparent_58%,rgba(29,58,14,0.06)_100%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_70%_at_50%_42%,transparent_58%,rgba(31,51,32,0.06)_100%)]"
         />
         {off ? <SaleRibbon percent={off} /> : null}
         {soldOut && (
@@ -87,7 +87,7 @@ export function ProductCard({ product }: { product: ProductView }) {
               </>
             ) : (
               <>
-                <span className="block text-lg font-semibold text-ink">{formatPrice(product.price)}</span>
+                <span className="block text-lg font-semibold text-ink">{priceLabel(product.price)}</span>
                 <Availability stock={product.stock} />
               </>
             )}

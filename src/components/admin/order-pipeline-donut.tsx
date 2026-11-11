@@ -54,7 +54,7 @@ export function OrderPipelineDonut({ counts, total }: { counts: StatusCount[]; t
   const centerShare = activeData && total > 0 ? Math.round((activeData.count / total) * 100) : null;
 
   return (
-    <section className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6">
+    <section className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6">
       <span className="eyebrow">Cumplimiento</span>
       <h2 className="mt-1 font-display text-xl font-semibold text-ink">Flujo de pedidos</h2>
 
@@ -133,7 +133,7 @@ export function OrderPipelineDonut({ counts, total }: { counts: StatusCount[]; t
             {/* Tooltip near cursor */}
             {activeData && cursor && (
               <div
-                className="pointer-events-none absolute z-10 rounded-lg border border-[var(--line)] bg-surface px-3 py-2 shadow-[0_14px_34px_-16px_rgba(29,58,14,0.5)]"
+                className="pointer-events-none absolute z-10 rounded-lg border border-[var(--line)] bg-surface px-3 py-2 shadow-[0_14px_34px_-16px_rgba(31,51,32,0.5)]"
                 style={{
                   left: Math.min(Math.max(cursor.x, 60), 220 - 60),
                   top: Math.max(cursor.y - 12, 4),

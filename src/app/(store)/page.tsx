@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getFeaturedProducts, getProducts, getCategories } from "@/lib/catalog";
-import { getSelectedBranch, getBranches } from "@/lib/branch";
 import { ProductImage } from "@/components/product-image";
 import { HeroSlider } from "@/components/hero-slider";
-import { BranchSuggest } from "@/components/branch-suggest";
 import { PromoSlider } from "@/components/promo-slider";
 import { PromoOverlay } from "@/components/promo-overlay";
 import { CategoryArt } from "@/components/category-art";
@@ -19,39 +17,17 @@ import { JsonLd } from "@/components/json-ld";
 
 import { siteUrl } from "@/lib/site";
 import { getStoreSettings } from "@/lib/settings";
-import { formatPrice } from "@/lib/format";
+import { whatsappUrl } from "@/lib/settings-shared";
 import { InstagramIcon } from "@/components/icons";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const orgJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Restaurant",
-  name: "Casa del Camba",
-  url: siteUrl,
-  slogan: "El mejor sabor de Santa Cruz",
-  description:
-    "Casa del Camba — comida típica cruceña desde 1986: majao de pato, picantes, empanadas de keperí y parrilla en Santa Cruz, Bolivia. Delivery y retiro en tienda con pago contra entrega.",
-  servesCuisine: ["Comida típica cruceña", "Comida criolla", "Parrilla"],
-  priceRange: "Bs 12–330",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Avenida Cristóbal de Mendoza #1365",
-    addressLocality: "Santa Cruz de la Sierra",
-    addressRegion: "Santa Cruz",
-    addressCountry: "BO",
-  },
-  areaServed: "Santa Cruz de la Sierra",
-  currenciesAccepted: "BOB",
-  paymentAccepted: "Efectivo",
-};
-
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "Casa del Camba",
+  name: "NutriBone",
   url: siteUrl,
   potentialAction: {
     "@type": "SearchAction",
@@ -60,55 +36,54 @@ const websiteJsonLd = {
   },
 };
 
-const trustBadges = (freeThreshold: number) => [
-  { title: "Hecho al momento", body: "Cocina criolla preparada cuando confirmas tu pedido." },
-  { title: "Delivery y retiro", body: "Recíbelo en tu puerta o retíralo en tienda." },
-  {
-    title: "Delivery gratis",
-    body:
-      freeThreshold > 0
-        ? `En pedidos desde ${formatPrice(freeThreshold)}.`
-        : "En todos los pedidos de Casa del Camba.",
-  },
-  { title: "Desde 1986", body: "El sabor camba de siempre, en el corazón de Santa Cruz." },
+const TRUST = [
+  { title: "48 h de cocción lenta", body: "Colágeno, minerales y aminoácidos extraídos con tiempo y paciencia." },
+  { title: "100% natural", body: "Sin conservantes ni aditivos. Ingredientes reales, en lotes pequeños." },
+  { title: "Delivery gratis", body: "Dentro del 4to anillo de Santa Cruz. Pedidos con 24 h de anticipación." },
+  { title: "Desde 2023", body: "Hecho en Santa Cruz de la Sierra, de nuestra cocina a tu mesa." },
 ];
 
 // Category covers from the brand photo set (fallback: first product photo).
 const COVER_BY_SLUG: Record<string, string> = {
-  "platos-tipicos-y-combinados": "/imgs/menu/majao-de-pato.jpeg",
-  parrilla: "/imgs/menu/churrasco.jpeg",
-  empanadas: "/imgs/menu/empanadas-de-carne-6-unid.jpeg",
-  postres: "/imgs/menu/tres-cambitas.jpeg",
-  bebidas: "/imgs/menu/gaseosa-coca-cola-500-ml.jpg",
+  caldos: "/images/variants.jpg",
+  cubitos: "/images/icecubes.jpg",
+  origen: "/images/origen.jpg",
+  nutriglow: "/images/nutriglow-crema.webp",
+  extras: "/images/shot.jpg",
 };
 
 export const revalidate = 300;
 
 export default async function HomePage() {
   const settings = await getStoreSettings();
-  const branch = await getSelectedBranch();
-  const TRUST = trustBadges(settings.shipping.freeThreshold);
   const CONTACT = settings.social;
-  const [featured, newest, categories, branches] = await Promise.all([
-    getFeaturedProducts(8, branch?.id),
-    getProducts({ sort: "newest" }, branch?.id),
+  const [featured, newest, categories] = await Promise.all([
+    getFeaturedProducts(8),
+    getProducts({ sort: "newest" }),
     getCategories(),
-    getBranches(),
   ]);
-  const topCategories = categories.slice(0, 4);
-  const branchSuggestions = branches.flatMap((b) =>
-    b.latitude == null || b.longitude == null
-      ? []
-      : [
-          {
-            slug: b.slug,
-            name: b.name,
-            address: b.address,
-            latitude: b.latitude,
-            longitude: b.longitude,
-          },
-        ]
-  );
+
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "NutriBone",
+    url: siteUrl,
+    slogan: "El poder de sanar en cada sorbo",
+    description:
+      "NutriBone — caldo de huesos artesanal en Santa Cruz de la Sierra: 48 horas de cocción lenta, 100% natural. Caldos Original, White y Antiinflamatorio, cubitos, caldo en polvo y skincare de tallow. Delivery dentro del 4to anillo.",
+    foundingDate: "2023",
+    founder: { "@type": "Person", name: "Laura Nicole Cuellar" },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Santa Cruz de la Sierra",
+      addressRegion: "Santa Cruz",
+      addressCountry: "BO",
+    },
+    areaServed: "Santa Cruz de la Sierra",
+    currenciesAccepted: "BOB",
+    paymentAccepted: "QR, transferencia, pago contra entrega",
+    ...(CONTACT.instagram ? { sameAs: [CONTACT.instagram] } : {}),
+  };
 
   // Product count + a representative image per category (falls back to the
   // category cover when no product photo exists yet).
@@ -129,12 +104,10 @@ export default async function HomePage() {
       <JsonLd data={orgJsonLd} />
       <JsonLd data={websiteJsonLd} />
 
-      <BranchSuggest branches={branchSuggestions} hasBranch={!!branch} />
-
       {/* Hero */}
-      <HeroSlider />
+      <HeroSlider whatsappUrl={whatsappUrl(settings) || null} />
 
-      {/* Immediate local promo for Santa Cruz delivery */}
+      {/* Brand motto band */}
       <PromoOverlay />
 
       {/* Trust badges */}
@@ -147,7 +120,7 @@ export default async function HomePage() {
                 i > 0 ? "lg:border-l lg:border-[var(--line)]" : ""
               }`}
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(255,204,4,0.35)] bg-[radial-gradient(circle,rgba(255,216,102,0.18),transparent_70%)] text-accent-strong">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(201,138,46,0.35)] bg-[radial-gradient(circle,rgba(227,178,100,0.18),transparent_70%)] text-accent-strong">
                 <TrustIcon i={i} />
               </span>
               <p className="mt-3.5 font-display text-lg font-bold text-ink">{t.title}</p>
@@ -161,41 +134,41 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-5 py-20">
         <Reveal>
           <div className="text-center">
-            <span className="eyebrow">El menú</span>
+            <span className="eyebrow">La tienda</span>
             <h2 className="mt-3 font-display text-4xl font-extrabold tracking-tight text-balance sm:text-5xl">
-              <SplitText text="Elige tu antojo" />
+              <SplitText text="Elige tu ritual" />
             </h2>
             <p className="mx-auto mt-4 max-w-md text-pretty text-muted">
-              Platos típicos, parrilla, empanadas, postres y bebidas bien frías. Todo el
-              sabor camba, en un mismo pedido.
+              Caldos en frasco, cubitos, polvo instantáneo y skincare de tallow.
+              Nutrición real para cada momento de tu día.
             </p>
           </div>
         </Reveal>
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
-          {topCategories.map((c, idx) => {
+        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-5">
+          {categories.map((c, idx) => {
             const count = countBySlug[c.slug] ?? 0;
             const comingSoon = count === 0;
             const img = COVER_BY_SLUG[c.slug] ?? imageBySlug[c.slug];
             const cardCls =
-              "group relative block aspect-[4/5] overflow-hidden rounded-2xl border border-[var(--line)] transition-all duration-500 hover:-translate-y-1 hover:border-accent hover:shadow-[0_28px_55px_-28px_rgba(29,58,14,0.55)]";
+              "group relative block aspect-[4/5] overflow-hidden rounded-2xl border border-[var(--line)] transition-all duration-500 hover:-translate-y-1 hover:border-accent hover:shadow-[0_28px_55px_-28px_rgba(31,51,32,0.55)]";
 
             const body =
               comingSoon || !img ? (
-                // No products / no photo yet → green card with a menu icon
+                // No products / no photo yet → green card with a brand icon
                 <div
                   className="relative flex h-full flex-col items-center justify-center gap-3 p-6 text-center"
-                  style={{ background: "linear-gradient(160deg, #3c6e1b, #1d3a0e)" }}
+                  style={{ background: "linear-gradient(160deg, #2e4a2e, #1f3320)" }}
                 >
-                  <div className="pointer-events-none absolute inset-3 rounded-xl border border-[rgba(255,216,102,0.25)]" />
+                  <div className="pointer-events-none absolute inset-3 rounded-xl border border-[rgba(227,178,100,0.25)]" />
                   <CategoryArt slug={c.slug} className="h-20 w-20 text-accent-soft transition duration-500 group-hover:scale-105" />
                   <div>
                     <h3 className="font-display text-xl font-bold text-light">{c.name}</h3>
                     {comingSoon ? (
-                      <span className="mt-2 inline-block rounded-full border border-[rgba(255,216,102,0.4)] px-3 py-1 text-[0.6rem] uppercase tracking-[0.16em] text-accent-soft">
+                      <span className="mt-2 inline-block rounded-full border border-[rgba(227,178,100,0.4)] px-3 py-1 text-[0.6rem] uppercase tracking-[0.16em] text-accent-soft">
                         Próximamente
                       </span>
                     ) : (
-                      <span className="mt-1 block text-xs uppercase tracking-[0.16em] text-accent-soft">Ver menú →</span>
+                      <span className="mt-1 block text-xs uppercase tracking-[0.16em] text-accent-soft">Ver productos →</span>
                     )}
                   </div>
                 </div>
@@ -207,18 +180,18 @@ export default async function HomePage() {
                   </div>
                   <div
                     className="absolute inset-0"
-                    style={{ background: "linear-gradient(180deg, rgba(29,58,14,0) 35%, rgba(29,58,14,0.55) 68%, rgba(29,58,14,0.88) 100%)" }}
+                    style={{ background: "linear-gradient(180deg, rgba(31,51,32,0) 35%, rgba(31,51,32,0.55) 68%, rgba(31,51,32,0.88) 100%)" }}
                   />
                   <div className="pointer-events-none absolute inset-3 rounded-xl border border-[rgba(255,255,255,0.16)]" />
                   <div className="relative flex h-full flex-col items-center justify-end p-5 text-center">
                     <h3 className="font-display text-2xl font-bold text-light drop-shadow-sm">{c.name}</h3>
-                    <span className="mt-1 text-xs uppercase tracking-[0.16em] text-accent-soft">Ver menú →</span>
+                    <span className="mt-1 text-xs uppercase tracking-[0.16em] text-accent-soft">Ver productos →</span>
                   </div>
                 </>
               );
 
             return (
-              <Reveal key={c.slug} delay={(idx % 4) * 80}>
+              <Reveal key={c.slug} delay={(idx % 5) * 80}>
                 {comingSoon ? (
                   <div className={cardCls}>{body}</div>
                 ) : (
@@ -232,7 +205,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Favourites band — cross-fading dish slider */}
+      {/* Favourites band — cross-fading product slider */}
       <PromoSlider />
 
       {/* Destacado carousel */}
@@ -255,10 +228,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Club Camba — loyalty programme billboard */}
+      {/* Club NutriBone — loyalty programme billboard */}
       <ClubBand rules={settings.loyalty} />
 
-      {/* Same-day local delivery, built around the moto courier illustration */}
+      {/* Delivery band: 24 h anticipación, 4to anillo gratis */}
       <DeliveryBand
         hours={settings.contact.hours}
         deliveryTime={settings.shipping.deliveryTime}
@@ -272,8 +245,8 @@ export default async function HomePage() {
             <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-panel">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/hero-casadelcamba.webp"
-                alt="El patio de Casa del Camba en Santa Cruz"
+                src="/images/founder.jpg"
+                alt="Laura Nicole Cuellar, fundadora de NutriBone"
                 className="h-full w-full object-cover"
               />
               <div className="pointer-events-none absolute inset-3 rounded-xl border border-[rgba(246,243,232,0.6)]" />
@@ -283,22 +256,22 @@ export default async function HomePage() {
             <div>
               <span className="eyebrow">Nuestra historia</span>
               <h2 className="mt-3 font-display text-4xl font-extrabold tracking-tight text-ink text-balance sm:text-5xl">
-                <SplitText text="La casa del" />{" "}
-                <span className="brand-text">sabor camba</span>
+                <SplitText text="Nutrición real," />{" "}
+                <span className="brand-text">desde adentro</span>
               </h2>
               <p className="mt-5 text-pretty leading-relaxed text-ink/80">
-                Desde el 6 de diciembre de 1986, Casa del Camba cocina los sabores criollos
-                de Santa Cruz: majao de pato, picante de lengua, empanadas de keperí y
-                parrilla, como se han hecho siempre.
+                NutriBone nació en 2023 en Santa Cruz de la Sierra, de la mano de
+                Laura Nicole Cuellar: caldo de huesos artesanal, hecho en lotes
+                pequeños y por encargo, con 48 horas de cocción lenta.
               </p>
               <p className="mt-4 text-pretty leading-relaxed text-ink/80">
-                Fundada por Juan Carlos Medina y Rosa Parada de Medina, hoy somos la
-                referencia de la comida camba en la ciudad. Pide en línea con delivery o
-                retira en tienda, con pago contra entrega.
+                Lo que empezó como un ritual personal hoy es una comunidad que
+                elige nutrición real: sin conservantes, sin atajos. No es magia,
+                pero funciona.
               </p>
               <Link
                 href="/about"
-                className="mt-7 inline-block rounded-full bg-accent px-8 py-3 text-sm font-semibold text-brand-deep shadow-[0_16px_36px_-18px_rgba(255,204,4,0.95)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
+                className="mt-7 inline-block rounded-full bg-accent px-8 py-3 text-sm font-semibold text-brand-deep shadow-[0_16px_36px_-18px_rgba(201,138,46,0.95)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
               >
                 Conoce nuestra historia
               </Link>
@@ -307,16 +280,16 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Commitments (replaces the pre-launch sample testimonials) */}
+      {/* Commitments */}
       <Commitments />
 
       {/* Product gallery */}
       <section className="relative overflow-hidden bg-cream-soft px-5 py-24">
         {/* accent hairline + soft glow */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(255,204,4,0.4)] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(201,138,46,0.4)] to-transparent" />
         <div
           className="pointer-events-none absolute left-1/2 top-0 h-72 w-[60rem] -translate-x-1/2"
-          style={{ background: "radial-gradient(50% 60% at 50% 0%, rgba(255,216,102,0.16), transparent 70%)" }}
+          style={{ background: "radial-gradient(50% 60% at 50% 0%, rgba(227,178,100,0.16), transparent 70%)" }}
         />
 
         <div className="relative mx-auto max-w-6xl text-center">
@@ -325,11 +298,11 @@ export default async function HomePage() {
             Galería
           </span>
           <h2 className="mt-4 font-display text-4xl font-extrabold tracking-tight text-ink text-balance sm:text-5xl">
-            <SplitText text="Bocados que ya son de casa" />
+            <SplitText text="El ritual NutriBone" />
           </h2>
           <p className="mt-3 text-pretty text-muted">
-            Un vistazo a lo que más piden nuestros clientes — compártelo con{" "}
-            <span className="font-semibold text-accent-strong">#CasaDelCamba</span>
+            Un vistazo a nuestros caldos, cubitos y preparados — compártelo con{" "}
+            <span className="font-semibold text-accent-strong">#NutriBone</span>
           </p>
 
           <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
@@ -338,7 +311,7 @@ export default async function HomePage() {
                 key={p.id}
                 href={`/product/${p.slug}`}
                 aria-label={p.name}
-                className="group relative block aspect-square overflow-hidden rounded-xl ring-1 ring-[var(--line)] transition-all duration-500 hover:-translate-y-1 hover:ring-2 hover:ring-accent hover:shadow-[0_24px_48px_-24px_rgba(29,58,14,0.5)]"
+                className="group relative block aspect-square overflow-hidden rounded-xl ring-1 ring-[var(--line)] transition-all duration-500 hover:-translate-y-1 hover:ring-2 hover:ring-accent hover:shadow-[0_24px_48px_-24px_rgba(31,51,32,0.5)]"
               >
                 <div className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-110">
                   <ProductImage src={p.images[0]} alt={p.name} seed={p.slug} />
@@ -363,7 +336,7 @@ export default async function HomePage() {
                 href={CONTACT.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-3.5 text-sm font-semibold text-brand-deep shadow-[0_16px_36px_-18px_rgba(255,204,4,0.95)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-3.5 text-sm font-semibold text-brand-deep shadow-[0_16px_36px_-18px_rgba(201,138,46,0.95)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
               >
                 <InstagramIcon size={18} />
                 Síguenos en Instagram
@@ -373,7 +346,7 @@ export default async function HomePage() {
               href="/shop"
               className="rounded-full border border-[var(--line-strong)] px-8 py-3.5 text-sm font-semibold text-ink transition hover:border-accent hover:text-accent-strong"
             >
-              Ver el menú
+              Ver productos
             </Link>
           </div>
         </div>
@@ -387,18 +360,23 @@ export default async function HomePage() {
 
 function TrustIcon({ i }: { i: number }) {
   const p = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  // 0 Hecho al momento · 1 Delivery y retiro · 2 Delivery gratis · 3 Desde 1986
+  // 0 Cocción lenta · 1 100% natural · 2 Delivery · 3 Comunidad
   if (i === 0)
     return (
       <svg {...p}>
-        <path d="M4 17h16" />
-        <path d="M5 17a7 7 0 0 1 14 0" />
-        <path d="M12 10V8" />
-        <path d="M10.5 8h3" />
-        <path d="M3 20h18" />
+        <path d="M4 11h16v3a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6v-3z" />
+        <path d="M2.5 11h19" />
+        <path d="M9 7c0-1.2 1-1.3 1-2.5M13.5 7c0-1.2 1-1.3 1-2.5" />
       </svg>
     );
   if (i === 1)
+    return (
+      <svg {...p}>
+        <path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z" />
+        <path d="M5 19c3-5 7-8 11-10" />
+      </svg>
+    );
+  if (i === 2)
     return (
       <svg {...p}>
         <circle cx="5.5" cy="17.5" r="2.5" />
@@ -408,18 +386,9 @@ function TrustIcon({ i }: { i: number }) {
         <path d="M15.5 8.5h3" />
       </svg>
     );
-  if (i === 2)
-    return (
-      <svg {...p}>
-        <rect x="2.5" y="6" width="19" height="12" rx="2" />
-        <circle cx="12" cy="12" r="2.4" />
-        <path d="M6 9.5v5M18 9.5v5" />
-      </svg>
-    );
   return (
     <svg {...p}>
-      <path d="M4 5h16v11H9l-5 4V5z" />
-      <path d="M8 10h8M8 13h5" />
+      <path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z" />
     </svg>
   );
 }

@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "Pedido",
-  READY: "Listo en caja",
+  READY: "Listo para enviar",
   COLLECTED: "Entregado",
   CANCELLED: "Cancelado",
 };
@@ -63,7 +63,6 @@ export default async function AdminLoyaltyPage({ searchParams }: PageProps<"/adm
           status: true,
           createdAt: true,
           customer: { select: { name: true, email: true } },
-          branch: { select: { name: true } },
         },
       })
       .catch(() => []),
@@ -149,7 +148,7 @@ export default async function AdminLoyaltyPage({ searchParams }: PageProps<"/adm
         {/* Rewards catalogue */}
         <section
           id="regalos"
-          className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6"
+          className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6"
         >
           <h2 className="font-display text-xl font-semibold text-ink">Regalos canjeables</h2>
           <p className="mt-1 text-sm text-muted">
@@ -194,12 +193,12 @@ export default async function AdminLoyaltyPage({ searchParams }: PageProps<"/adm
         {/* Redemption counter */}
         <section
           id="canjes"
-          className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6"
+          className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6"
         >
           <h2 className="font-display text-xl font-semibold text-ink">Canjes para entregar</h2>
           <p className="mt-1 text-sm text-muted">
-            El cliente muestra el código en caja. «Cancelar» devuelve el regalo al stock y los puntos al
-            cliente.
+            El cliente muestra el código al recibir su pedido. «Cancelar» devuelve el regalo al stock y
+            los puntos al cliente.
           </p>
           {redemptions.length === 0 ? (
             <p className="mt-4 rounded-xl border border-dashed border-[var(--line)] px-4 py-10 text-center text-sm text-muted">
@@ -218,8 +217,7 @@ export default async function AdminLoyaltyPage({ searchParams }: PageProps<"/adm
                       <span className="font-mono text-xs text-muted">{r.code}</span>
                     </p>
                     <p className="text-xs text-muted">
-                      {r.customer.name} · {r.customer.email} · {r.costPoints} pts ·{" "}
-                      {r.branch?.name ?? "sin sucursal"} · {formatDate(r.createdAt)}
+                      {r.customer.name} · {r.customer.email} · {r.costPoints} pts · {formatDate(r.createdAt)}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -250,7 +248,7 @@ export default async function AdminLoyaltyPage({ searchParams }: PageProps<"/adm
         {/* Customers */}
         <section
           id="clientes"
-          className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6"
+          className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6"
         >
           <h2 className="font-display text-xl font-semibold text-ink">Saldos por cliente</h2>
           <p className="mt-1 text-sm text-muted">

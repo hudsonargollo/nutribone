@@ -1,18 +1,17 @@
 import { getStorePerformance, getOrderStatusBreakdown } from "@/lib/admin-data";
 import { PerformanceRings } from "@/components/admin/performance-rings";
 import { OrderPipelineDonut } from "@/components/admin/order-pipeline-donut";
-import { requireAdmin, scopeBranchId } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Rendimiento" };
 
 export const dynamic = "force-dynamic";
 
 export default async function PerformancePage() {
-  const session = await requireAdmin(); // layouts don't re-run on client navigation
-  const branchId = scopeBranchId(session);
+  await requireAdmin(); // layouts don't re-run on client navigation
   const [performance, statusBreakdown] = await Promise.all([
-    getStorePerformance(branchId),
-    getOrderStatusBreakdown(branchId),
+    getStorePerformance(),
+    getOrderStatusBreakdown(),
   ]);
 
   return (

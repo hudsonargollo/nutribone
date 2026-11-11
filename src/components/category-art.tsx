@@ -1,45 +1,6 @@
-/** Line icons for menu category tiles. */
+/** Line icons for shop category tiles. */
 
 type Props = { className?: string };
-
-function Plate({ className = "" }: Props) {
-  return (
-    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
-      {/* plate */}
-      <ellipse cx="60" cy="74" rx="38" ry="14" />
-      <ellipse cx="60" cy="72" rx="26" ry="8" strokeWidth="1.5" opacity="0.55" />
-      {/* rice mound */}
-      <path d="M44 68c0-9 7-15 16-15s16 6 16 15" strokeLinejoin="round" />
-      <path d="M53 60h1M61 56h1M69 60h1" strokeLinecap="round" opacity="0.6" />
-    </svg>
-  );
-}
-
-function Grill({ className = "" }: Props) {
-  return (
-    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
-      {/* steak */}
-      <path d="M32 60c0-14 12-24 28-24s28 10 28 24-12 24-28 24-28-10-28-24z" strokeLinejoin="round" />
-      {/* grill marks */}
-      <path d="M46 50l8 18M60 46l8 24M74 50l8 14" strokeLinecap="round" opacity="0.7" />
-      {/* heat */}
-      <path d="M48 26c0-4 4-4 4-8M60 26c0-4 4-4 4-8M72 26c0-4 4-4 4-8" strokeLinecap="round" opacity="0.5" />
-    </svg>
-  );
-}
-
-function Empanada({ className = "" }: Props) {
-  return (
-    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
-      {/* turnover */}
-      <path d="M28 74c0-20 14-34 32-34s32 14 32 34H28z" strokeLinejoin="round" />
-      {/* crimped edge */}
-      <path d="M34 74l4-6M44 74l4-6M54 74l4-6M64 74l4-6M74 74l4-6M84 74l4-6" strokeLinecap="round" opacity="0.65" />
-      {/* steam */}
-      <path d="M50 30c0-4 4-4 4-8M62 30c0-4 4-4 4-8" strokeLinecap="round" opacity="0.5" />
-    </svg>
-  );
-}
 
 function Bowl({ className = "" }: Props) {
   return (
@@ -55,92 +16,78 @@ function Bowl({ className = "" }: Props) {
   );
 }
 
-function Leaf({ className = "" }: Props) {
+function Cubes({ className = "" }: Props) {
   return (
     <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
-      <path d="M38 84c0-26 17-43 46-47-2 29-19 47-46 47z" strokeLinejoin="round" />
-      <path d="M44 78c9-13 20-24 32-32" strokeLinecap="round" opacity="0.7" />
+      {/* three ice cubes */}
+      <rect x="26" y="56" width="28" height="28" rx="5" strokeLinejoin="round" />
+      <rect x="62" y="56" width="28" height="28" rx="5" strokeLinejoin="round" />
+      <rect x="44" y="26" width="28" height="28" rx="5" strokeLinejoin="round" />
+      {/* glints */}
+      <path d="M33 64l6 6M69 64l6 6M51 34l6 6" strokeLinecap="round" opacity="0.6" />
+      {/* melt drops */}
+      <path d="M40 92v6M76 92v6" strokeLinecap="round" opacity="0.5" />
     </svg>
   );
 }
 
-function Fries({ className = "" }: Props) {
+function Pouch({ className = "" }: Props) {
   return (
     <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
-      {/* fries */}
-      <path d="M44 54V26M54 52V20M64 52V24M74 54V30" strokeLinecap="round" />
-      <path d="M82 58l4-16M38 58l-4-14" strokeLinecap="round" opacity="0.8" />
-      {/* carton */}
-      <path d="M34 54h52l-6 44a6 6 0 0 1-6 5H46a6 6 0 0 1-6-5l-6-44z" strokeLinejoin="round" />
-      <path d="M44 72h32" strokeWidth="1.5" opacity="0.55" strokeLinecap="round" />
+      {/* stand-up pouch */}
+      <path d="M40 30h40l6 62a6 6 0 0 1-6 6H40a6 6 0 0 1-6-6l6-62z" strokeLinejoin="round" />
+      {/* seal */}
+      <path d="M38 30l-2-8h48l-2 8" strokeLinejoin="round" />
+      <path d="M37 42h46" strokeWidth="1.5" opacity="0.55" />
+      {/* steam rising from the pouch */}
+      <path d="M54 60c0-4 3-4 3-8M66 62c0-4 3-4 3-8" strokeLinecap="round" opacity="0.6" />
+      {/* label */}
+      <path d="M46 74h28M50 82h20" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
     </svg>
   );
 }
 
-function Dessert({ className = "" }: Props) {
+function CreamJar({ className = "" }: Props) {
   return (
     <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
-      {/* cup */}
-      <path d="M38 58h44l-5 36a6 6 0 0 1-6 5H49a6 6 0 0 1-6-5l-5-36z" strokeLinejoin="round" />
-      {/* layers */}
-      <path d="M41 72h38M43 86h34" strokeWidth="1.5" opacity="0.55" />
-      {/* swirl */}
-      <path d="M42 58c2-8 8-12 18-12s16 5 18 12" strokeLinejoin="round" />
-      <path d="M50 46c2-6 6-9 10-9s8 3 10 9" strokeLinejoin="round" opacity="0.8" />
-      <path d="M60 37v-8" strokeLinecap="round" />
-      {/* spoon */}
-      <ellipse cx="88" cy="34" rx="6" ry="8" />
-      <path d="M88 42v10" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function Drink({ className = "" }: Props) {
-  return (
-    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
-      {/* cup */}
-      <path d="M40 38h40l-5 56a6 6 0 0 1-6 5H51a6 6 0 0 1-6-5l-5-56z" strokeLinejoin="round" />
       {/* lid */}
-      <path d="M36 38h48v-6a3 3 0 0 0-3-3H39a3 3 0 0 0-3 3v6z" strokeLinejoin="round" />
-      {/* straw */}
-      <path d="M62 29l6-17" strokeLinecap="round" />
-      {/* band */}
-      <path d="M42 62h36" strokeWidth="1.5" opacity="0.55" />
-      {/* bubbles */}
-      <path d="M52 80c3-3 6-2 6 1s-4 5-6 3" opacity="0.6" strokeLinecap="round" />
+      <rect x="34" y="34" width="52" height="14" rx="5" strokeLinejoin="round" />
+      {/* jar body */}
+      <path d="M38 48h44v38a8 8 0 0 1-8 8H46a8 8 0 0 1-8-8V48z" strokeLinejoin="round" />
+      {/* label */}
+      <path d="M46 62h28M50 70h20" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
+      {/* leaf accent */}
+      <path d="M88 26c0-8 6-13 14-14-1 8-6 13-14 14z" strokeLinejoin="round" opacity="0.7" />
     </svg>
   );
 }
 
-function Star({ className = "" }: Props) {
+function Shot({ className = "" }: Props) {
   return (
     <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" strokeWidth="2" className={className} aria-hidden="true">
-      {/* star */}
-      <path
-        d="M60 20l11.6 23.5 25.9 3.8-18.7 18.2 4.4 25.8L60 78.1 36.8 91.3l4.4-25.8-18.7-18.2 25.9-3.8L60 20z"
-        strokeLinejoin="round"
-      />
-      {/* flame flicker */}
-      <path d="M60 46c3 5 5 8 5 12a5 5 0 0 1-10 0c0-4 2-7 5-12z" strokeLinejoin="round" opacity="0.7" />
+      {/* shot glass */}
+      <path d="M42 40h36l-4 48a6 6 0 0 1-6 5H52a6 6 0 0 1-6-5l-4-48z" strokeLinejoin="round" />
+      {/* liquid line */}
+      <path d="M44 56h32" strokeWidth="1.5" opacity="0.55" />
+      {/* citrus slice */}
+      <circle cx="80" cy="34" r="10" />
+      <path d="M80 26v16M72 34h16" strokeWidth="1.2" opacity="0.6" />
+      {/* sparkle */}
+      <path d="M36 26v8M32 30h8" strokeLinecap="round" opacity="0.6" />
     </svg>
   );
 }
 
 function Fallback({ className = "" }: Props) {
-  return <Plate className={className} />;
+  return <Bowl className={className} />;
 }
 
 const MAP: Record<string, (p: Props) => React.ReactElement> = {
-  entrada: Star,
-  empanadas: Empanada,
-  sopas: Bowl,
-  "platos-tipicos-y-combinados": Plate,
-  parrilla: Grill,
-  "plato-vegetariano": Leaf,
-  "menu-de-ninos": Star,
-  agregados: Fries,
-  postres: Dessert,
-  bebidas: Drink,
+  caldos: Bowl,
+  cubitos: Cubes,
+  origen: Pouch,
+  nutriglow: CreamJar,
+  extras: Shot,
 };
 
 export function CategoryArt({ slug, className }: { slug: string; className?: string }) {

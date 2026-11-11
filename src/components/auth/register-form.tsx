@@ -28,7 +28,7 @@ export function RegisterForm({ next }: { next?: string }) {
       <div className="text-center">
         <h1 className="font-display text-3xl font-bold text-ink">Crear cuenta</h1>
         <p className="mt-1 text-sm text-muted">
-          Únete a Casa del Camba para un pago más rápido. Te enviaremos un código para confirmar que eres tú.
+          Únete a NutriBone para un pago más rápido. Te enviaremos un código para confirmar que eres tú.
         </p>
       </div>
 

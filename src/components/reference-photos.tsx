@@ -182,7 +182,7 @@ export function ReferencePhotos({
           }`}
         >
           <span className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-accent/15 blur-2xl" aria-hidden="true" />
-          <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent-soft via-accent to-accent-strong text-brand shadow-[0_10px_24px_-10px_rgba(255,204,4,0.9)] transition group-hover:scale-105">
+          <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent-soft via-accent to-accent-strong text-brand shadow-[0_10px_24px_-10px_rgba(201,138,46,0.9)] transition group-hover:scale-105">
             {busy ? (
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-brand/30 border-t-brand" />
             ) : (
@@ -207,7 +207,7 @@ export function ReferencePhotos({
         <div {...dropProps} className={`rounded-2xl border p-3 transition sm:p-4 ${dragging ? "border-accent bg-accent/10" : "border-[var(--line-strong)] bg-surface/60"}`}>
           <ul className="grid grid-cols-3 gap-3">
             {items.map((it, i) => (
-              <li key={it.id} className="group relative aspect-square overflow-hidden rounded-xl border border-accent/40 bg-sand shadow-[0_10px_24px_-18px_rgba(29,58,14,0.6)]">
+              <li key={it.id} className="group relative aspect-square overflow-hidden rounded-xl border border-accent/40 bg-sand shadow-[0_10px_24px_-18px_rgba(31,51,32,0.6)]">
                 {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
                 <img src={it.url} alt={`Foto de referencia ${i + 1}`} className="h-full w-full object-cover" />
                 <span className="absolute left-2 top-2 rounded-full bg-brand/90 px-2 py-0.5 text-[0.6rem] font-semibold text-accent-soft">

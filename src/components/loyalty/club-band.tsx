@@ -3,7 +3,7 @@ import type { LoyaltySettings } from "@/lib/settings-shared";
 import { pointRuleLabel, stampRuleLabel } from "@/lib/loyalty-shared";
 
 // Homepage billboard for the loyalty programme. Kept deliberately short: the
-// rules live on /club-camba, this only has to earn the click.
+// rules live on /club, this only has to earn the click.
 export function ClubBand({ rules }: { rules: LoyaltySettings }) {
   if (!rules.enabled) return null;
   return (
@@ -13,7 +13,7 @@ export function ClubBand({ rules }: { rules: LoyaltySettings }) {
           className="pointer-events-none absolute inset-0 opacity-25"
           style={{
             background:
-              "radial-gradient(60% 120% at 15% 0%, rgba(255,224,138,0.55), transparent 60%), radial-gradient(50% 110% at 90% 100%, rgba(255,204,4,0.4), transparent 65%)",
+              "radial-gradient(60% 120% at 15% 0%, rgba(255,224,138,0.55), transparent 60%), radial-gradient(50% 110% at 90% 100%, rgba(201,138,46,0.4), transparent 65%)",
           }}
         />
         <div className="relative">
@@ -25,11 +25,11 @@ export function ClubBand({ rules }: { rules: LoyaltySettings }) {
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-light/75 sm:text-base">
             Y además {pointRuleLabel(rules)}, canjeables por regalos en nuestra tienda de premios:
-            botellas, bolsos y sorpresas para los más chicos.
+            packs, frascos y sorpresas para tu ritual.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/club-camba"
+              href="/club"
               className="rounded-full bg-gradient-to-r from-accent-soft to-accent px-8 py-3 text-sm font-semibold uppercase tracking-[0.1em] text-brand transition hover:opacity-90"
             >
               Conocer el club

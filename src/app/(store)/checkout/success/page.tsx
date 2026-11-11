@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { orderLoyalty } from "@/lib/loyalty";
 import { getStoreSettings } from "@/lib/settings";
+import { CONTACT } from "@/lib/contact";
 import { ClearCart } from "@/components/cart/clear-cart";
 
 export const metadata: Metadata = {
@@ -19,7 +20,6 @@ type OrderSummary = {
   orderNumber: string;
   total: number;
   paymentMethod: string;
-  paymentStatus: string;
   status: string;
   customerId: string | null;
   productIds: string[];
@@ -34,7 +34,6 @@ async function findOrder(orderNumber: string): Promise<OrderSummary | null> {
         orderNumber: true,
         total: true,
         paymentMethod: true,
-        paymentStatus: true,
         status: true,
         customerId: true,
         items: { select: { productId: true } },
@@ -57,14 +56,11 @@ export default async function SuccessPage({
   // Everything shown here comes from the database, never from the URL.
   const order = orderNumber ? await findOrder(orderNumber) : null;
   if (!order) redirect("/cart");
+  if (order.status === "CANCELLED") redirect("/cart");
 
-  const online = order.paymentMethod !== "COD";
-  if (online && (order.paymentStatus === "FAILED" || order.status === "CANCELLED")) {
-    redirect("/checkout?payment=failed");
-  }
-  const awaitingPayment = online && order.paymentStatus !== "PAID";
+  const isTransfer = order.paymentMethod === "TRANSFER";
 
-  // What the order moved on the Club Camba ledger (account orders only).
+  // What the order moved on the loyalty ledger (account orders only).
   const settings = await getStoreSettings();
   const club =
     settings.loyalty.enabled && order.customerId ? await orderLoyalty(order.id) : null;
@@ -77,20 +73,23 @@ export default async function SuccessPage({
         .join(" y ")
     : "";
 
+  const waText = encodeURIComponent(
+    `Hola NutriBone, acabo de hacer el pedido ${order.orderNumber} por ${formatPrice(order.total)} en la tienda en línea. ${isTransfer ? "Quisiera coordinar el pago por QR/transferencia." : "Elegí pago contra entrega."}`
+  );
+  const waUrl = CONTACT.whatsapp ? `${CONTACT.whatsappUrl}?text=${waText}` : "";
+
   return (
     <div className="mx-auto max-w-2xl px-5 py-24 text-center">
       <ClearCart productIds={order.productIds} />
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-accent-soft to-accent">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3c6e1b" strokeWidth="2.6">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2e4a2e" strokeWidth="2.6">
           <path d="M5 12l5 5L20 6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
 
       <h1 className="mt-8 font-display text-4xl font-semibold text-ink">¡Gracias por tu compra!</h1>
       <p className="mt-3 text-muted">
-        {awaitingPayment
-          ? "Recibimos tu pedido. Estamos confirmando tu pago con la pasarela — te avisaremos por correo en cuanto se confirme."
-          : "Tu pedido fue registrado. Te enviaremos la confirmación por correo."}
+        Tu pedido fue registrado. Te contactamos por WhatsApp para coordinar el pago y la entrega.
       </p>
 
       <div className="mx-auto mt-8 max-w-sm rounded-xl border border-[var(--line)] bg-surface/70 p-6 text-sm">
@@ -105,25 +104,40 @@ export default async function SuccessPage({
         <div className="mt-3 flex justify-between">
           <span className="text-muted">Pago</span>
           <span className="font-medium text-ink">
-            {online
-              ? order.paymentStatus === "PAID"
-                ? "Pagado en línea"
-                : "Confirmando…"
-              : "Pago contra entrega"}
+            {isTransfer ? "QR / transferencia" : "Pago contra entrega"}
           </span>
         </div>
       </div>
 
-      <div className="mx-auto mt-6 max-w-sm rounded-xl border border-accent/40 bg-accent/5 p-5 text-sm">
-        <p className="font-medium text-ink">Guardado en tu cuenta</p>
-        <p className="mt-1 text-muted">Sigue este pedido y revisa todos tus anteriores cuando quieras.</p>
-        <Link
-          href="/account/orders"
-          className="mt-3 inline-block rounded-full border border-[var(--line-strong)] px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-ink transition hover:border-accent hover:text-accent-strong"
-        >
-          Ver mis pedidos
-        </Link>
-      </div>
+      {waUrl && (
+        <div className="mx-auto mt-6 max-w-sm rounded-xl border border-accent/40 bg-accent/5 p-5 text-sm">
+          <p className="font-medium text-ink">Agiliza tu pedido por WhatsApp</p>
+          <p className="mt-1 text-muted">
+            Envíanos tu número de pedido y coordinamos {isTransfer ? "el pago y " : ""}la entrega contigo.
+          </p>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block rounded-full bg-brand px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-light transition hover:opacity-90"
+          >
+            Escribir por WhatsApp
+          </a>
+        </div>
+      )}
+
+      {order.customerId && (
+        <div className="mx-auto mt-6 max-w-sm rounded-xl border border-accent/40 bg-accent/5 p-5 text-sm">
+          <p className="font-medium text-ink">Guardado en tu cuenta</p>
+          <p className="mt-1 text-muted">Sigue este pedido y revisa todos tus anteriores cuando quieras.</p>
+          <Link
+            href="/account/orders"
+            className="mt-3 inline-block rounded-full border border-[var(--line-strong)] px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-ink transition hover:border-accent hover:text-accent-strong"
+          >
+            Ver mis pedidos
+          </Link>
+        </div>
+      )}
 
       {club && (clubLine || club.redeemed) ? (
         <div className="mx-auto mt-6 max-w-sm rounded-xl border border-accent/40 bg-accent/5 p-5 text-sm">
@@ -142,7 +156,7 @@ export default async function SuccessPage({
             )}
           </p>
           <Link
-            href="/club-camba"
+            href="/club"
             className="mt-3 inline-block rounded-full border border-[var(--line-strong)] px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-ink transition hover:border-accent hover:text-accent-strong"
           >
             Ver mi tarjeta
@@ -151,9 +165,9 @@ export default async function SuccessPage({
       ) : null}
 
       <p className="mx-auto mt-6 max-w-md text-sm text-muted">
-        {online
-          ? "Guarda tu número de pedido — puedes rastrearlo cuando quieras desde la página de Estado del pedido."
-          : "Si elegiste pago contra entrega, ten el monto listo al recibir. Nuestro equipo te llamará para confirmar el pedido."}
+        Guarda tu número de pedido. {isTransfer
+          ? "Tu pedido se entrega una vez confirmado el pago."
+          : "Si elegiste pago contra entrega, ten el monto listo al recibir."}
       </p>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -162,12 +176,6 @@ export default async function SuccessPage({
           className="inline-block rounded-full bg-gradient-to-r from-accent-soft to-accent px-8 py-3 text-sm font-medium text-brand transition hover:opacity-90"
         >
           Seguir comprando
-        </Link>
-        <Link
-          href="/account/orders"
-          className="inline-block rounded-full border border-[var(--line-strong)] px-8 py-3 text-sm font-medium text-ink transition hover:border-accent hover:text-accent-strong"
-        >
-          Rastrear pedido
         </Link>
       </div>
     </div>

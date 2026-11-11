@@ -5,6 +5,7 @@ import { useCart } from "./cart/cart-provider";
 import { useToast } from "@/components/ui/toast";
 import type { ProductView } from "@/lib/types";
 import { toCartLine } from "@/lib/cart";
+import { CONTACT } from "@/lib/contact";
 
 const MAX_QTY = 20;
 
@@ -21,6 +22,21 @@ export function QuickAdd({ product }: { product: ProductView }) {
   useEffect(() => () => {
     if (addedTimer.current) window.clearTimeout(addedTimer.current);
   }, []);
+
+  if (product.price <= 0) {
+    const href = CONTACT.whatsappUrl
+      ? `${CONTACT.whatsappUrl}?text=${encodeURIComponent(`Hola NutriBone, quiero consultar el precio de ${product.name}`)}`
+      : "/contact";
+    return (
+      <a
+        href={href}
+        {...(CONTACT.whatsappUrl ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        className="mt-3 flex h-10 items-center justify-center rounded-full border border-[var(--line-strong)] text-xs font-semibold uppercase tracking-[0.08em] text-brand transition hover:border-accent hover:text-accent-strong dark:text-ink"
+      >
+        Consultar precio
+      </a>
+    );
+  }
 
   if (soldOut) {
     return (
@@ -80,8 +96,8 @@ export function QuickAdd({ product }: { product: ProductView }) {
         title="Agregar al carrito"
         className={`flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-xs font-semibold uppercase tracking-[0.08em] transition duration-200 active:scale-[0.98] ${
           added
-            ? "bg-accent text-brand-deep shadow-[0_12px_26px_-14px_rgba(255,204,4,0.95)]"
-            : "bg-brand text-light shadow-[0_12px_26px_-14px_rgba(76,138,35,0.8)] hover:bg-brand-deep"
+            ? "bg-accent text-brand-deep shadow-[0_12px_26px_-14px_rgba(201,138,46,0.95)]"
+            : "bg-brand text-light shadow-[0_12px_26px_-14px_rgba(58,90,58,0.8)] hover:bg-brand-deep"
         }`}
       >
         {added ? (

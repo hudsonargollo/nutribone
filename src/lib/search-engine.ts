@@ -1,17 +1,17 @@
 import type { CategoryView, ProductView } from "./types";
 
 // Storefront search: typo-tolerant, plural-aware, understands everyday Spanish
-// words ("empanada", "majao", "gaseosa"), price phrases ("hasta 50") and
+// words ("caldo", "cubitos", "tallow"), price phrases ("hasta 50") and
 // offer words ("oferta"). Pure — runs on the product list in memory, which is
-// fine for a restaurant menu.
+// fine for a small artisanal catalog.
 
 export type SearchCategory = CategoryView & { count: number };
 
 export type SearchResult = {
   products: ProductView[];
-  /** Category the query asked for (e.g. "empanadas", "sopa" → Empanadas / Sopas). */
+  /** Category the query asked for (e.g. "cubitos", "polvo" → IceCubes / Origen). */
   category: SearchCategory | null;
-  /** Typos we read past: "empananda" → "empanada". */
+  /** Typos we read past: "caldoo" → "caldo". */
   corrections: { from: string; to: string }[];
   minPrice: number | null;
   maxPrice: number | null;
@@ -24,29 +24,28 @@ const STOP = new Set(
   "a an and the for of with in on to my me i want need show find looking some any all producto productos item items buy Bs BOB price la el los las un una unos unas de del al y o para por con en que cual como cuanto quiero necesito busco buscar muestrame hay tienen tienes es son mi mis ki ka ke ky chahiye chahye dikhao wala wali waly".split(" ")
 );
 
-/** Everyday / colloquial words → the word the menu uses. */
+/** Everyday / colloquial words → the word the catalog uses. */
 const ALIASES: Record<string, string> = {
-  papas: "papa", papafrita: "papa", papafritas: "papa", fritas: "papa",
-  postres: "postre", helado: "postre", torta: "postre", dulce: "postre", dulces: "postre",
-  gaseosa: "bebida", refresco: "bebida", soda: "bebida", jugo: "bebida", agua: "bebida",
-  guarnicion: "agregado", guarniciones: "agregado", acompanamiento: "agregado",
-  infantil: "nino", kids: "nino",
-  combo: "combo", combos: "combo",
+  hielo: "cubito", cubo: "cubito", icecube: "cubito",
+  instantaneo: "polvo",
+  cosmetica: "skincare",
+  chupito: "shot",
 };
 
-/** Words that point at a category even when the product name doesn't use them. */
+/** Words that point at a category even when the product name doesn't use them.
+ *  Values are the first word of the category name (see sample-data / seed). */
 const CATEGORY_HINTS: Record<string, string> = {
-  entrada: "entrada",
-  empanada: "empanada",
-  sopa: "sopa",
-  plato: "plato",
-  tipico: "tipico",
-  parrilla: "parrilla",
-  vegetariano: "vegetariano",
-  nino: "nino",
-  agregado: "agregado",
-  postre: "postre",
-  bebida: "bebida",
+  caldo: "caldo",
+  hueso: "caldo",
+  cubito: "icecube",
+  icecube: "icecube",
+  hielo: "icecube",
+  origen: "origen",
+  polvo: "origen",
+  nutriglow: "nutriglow",
+  skincare: "nutriglow",
+  shot: "shot",
+  extra: "shot",
 };
 
 const SALE_WORDS = new Set([
@@ -58,7 +57,7 @@ function fold(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
-/** empanadas → empanada, papas → papa, combos → combo. */
+/** caldos → caldo, cubitos → cubito, shots → shot. */
 function singular(w: string): string {
   if (w.length > 3 && w.endsWith("s") && !w.endsWith("ss")) return w.slice(0, -1);
   return w;
@@ -176,7 +175,7 @@ export function searchCatalog(
     return t;
   });
 
-  // A word that names a category ("empanada", "sopa", "postres").
+  // A word that names a category ("caldo", "cubito", "polvo").
   let category: SearchCategory | null = null;
   for (const t of fixed) {
     const target = CATEGORY_HINTS[t] ?? t;
@@ -199,7 +198,7 @@ export function searchCatalog(
     let matched = 0;
     for (const t of fixed) {
       const isCategoryWord = (CATEGORY_HINTS[t] ?? t) === categoryWord;
-      // "papa" shouldn't pull in a plato whose description mentions papas.
+      // "caldo" shouldn't pull in another category's product whose description mentions caldo.
       const usable = isCategoryWord && p.category.slug !== category!.slug ? fields.slice(0, 3) : fields;
       let best = 0;
       for (const f of usable) for (const w of f.words) best = Math.max(best, similarity(t, w) * f.weight);

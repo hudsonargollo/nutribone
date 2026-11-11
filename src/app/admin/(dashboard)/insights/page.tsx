@@ -4,18 +4,17 @@ import {
   CategorySalesPanel,
   RecentCustomersPanel,
 } from "@/components/admin/dashboard-insights";
-import { requireAdmin, scopeBranchId } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Tendencias" };
 
 export const dynamic = "force-dynamic";
 
 export default async function InsightsPage() {
-  const session = await requireAdmin(); // layouts don't re-run on client navigation
-  const branchId = scopeBranchId(session);
+  await requireAdmin(); // layouts don't re-run on client navigation
   const [breakdown, recent] = await Promise.all([
-    getSalesBreakdown(branchId),
-    getRecentCustomers(6, branchId),
+    getSalesBreakdown(),
+    getRecentCustomers(6),
   ]);
 
   return (

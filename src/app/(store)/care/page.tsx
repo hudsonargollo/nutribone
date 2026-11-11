@@ -4,33 +4,33 @@ import { Emblem } from "@/components/brand/emblem";
 export const metadata: Metadata = {
   alternates: { canonical: "/care" },
   title: "Ingredientes y cuidado",
-  description: "Ingredientes, alergias y cómo disfrutar tu pedido de Casa del Camba en su punto.",
+  description: "Ingredientes, conservación y cómo disfrutar tu caldo de huesos NutriBone en su punto.",
 };
 
 const TIPS = [
   {
-    title: "Come mientras está caliente",
-    body: "Los platos recién hechos se disfrutan mejor al momento. Si recoges en tienda, te avisamos apenas tu pedido esté listo.",
+    title: "Conserva en frío",
+    body: "En freezer hasta unos 3 meses o en refrigerador unos 4 días. Descongela en refrigerador y consume pronto; no recongeles lo que ya descongelaste.",
+  },
+  {
+    title: "La prueba de gelatina",
+    body: "Un buen caldo de huesos cuaja frío como gelatina: es señal de su colágeno. Al calentarlo vuelve a líquido. Eso es normal y deseable.",
   },
   {
     title: "Ingredientes a la vista",
-    body: "Cada plato detalla sus ingredientes en el menú. Si tienes dudas sobre un producto, pregúntanos antes de pedir.",
+    body: "Cada producto detalla sus ingredientes. Original lleva verduras; White es sin verduras ni condimentos; Antiinflamatoria suma cúrcuma y jengibre. Si tienes dudas, pregúntanos antes de pedir.",
   },
   {
     title: "Alergias y restricciones",
-    body: "Trabajamos con lácteos, huevo, maní, gluten (empanadas) y carnes de res, pollo y cerdo. Avísanos al confirmar tu pedido si tienes alguna alergia o restricción.",
+    body: "Nuestro caldo es de huesos de res y verduras, 100% natural y sin conservantes. NutriGlow es skincare de tallow de uso tópico. Avísanos cualquier alergia o restricción al confirmar tu pedido.",
   },
   {
-    title: "Bebidas bien frías",
-    body: "Nuestras bebidas salen directo de la cámara fría. Mantén el frío hasta servir para que conserven todo su sabor.",
+    title: "Cómo servirlo",
+    body: "Calienta a fuego suave, sin hervor fuerte, para cuidar sus nutrientes. Tómalo solo en tu ritual de la mañana o úsalo como base de sopas, arroces y guisos.",
   },
   {
-    title: "Sobrantes y conservación",
-    body: "Si te sobra algo, refrigéralo dentro de las 2 horas y consúmelo dentro de las siguientes 24. Recuerda recalentar bien antes de comer.",
-  },
-  {
-    title: "¿Un problema con tu pedido?",
-    body: "Escríbenos por WhatsApp con tu número de pedido y lo resolvemos. Tu compra está respaldada.",
+    title: "Frascos retornables",
+    body: "Devuelve tus frascos limpios y obtén descuento en tu próximo pedido. Si algo llegó en mal estado, escríbenos por WhatsApp con tu número de pedido y lo resolvemos.",
   },
 ];
 
@@ -44,7 +44,7 @@ export default function CarePage() {
           Ingredientes y cuidado
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-muted">
-          Todo lo que necesitas saber para disfrutar tu pedido tal como salió de nuestra cocina.
+          Todo lo que necesitas saber para conservar y disfrutar tu caldo de huesos NutriBone en su punto.
         </p>
       </div>
 
@@ -56,6 +56,12 @@ export default function CarePage() {
           </div>
         ))}
       </div>
+
+      <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted">
+        El caldo de huesos aporta colágeno, minerales y aminoácidos como apoyo general al
+        bienestar; no es un tratamiento médico. Ante embarazo, lactancia, alergias o
+        cualquier condición de salud, consulta a un profesional de la salud.
+      </p>
     </div>
   );
 }

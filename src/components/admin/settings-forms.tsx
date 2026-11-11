@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
+import { useActionState, useEffect, useRef, type ReactNode } from "react";
 import { useToast } from "@/components/ui/toast";
 import type { StoreSettings } from "@/lib/settings-shared";
 import {
@@ -17,7 +17,7 @@ import {
 type Action = (prev: SettingsState, fd: FormData) => Promise<SettingsState>;
 
 const input =
-  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(255,204,4,0.2)] disabled:opacity-60";
+  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(201,138,46,0.2)] disabled:opacity-60";
 const labelCls = "mb-1.5 block text-xs font-medium uppercase tracking-[0.1em] text-muted";
 const saveBtn =
   "rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-brand-deep transition hover:bg-accent-soft disabled:opacity-60";
@@ -54,7 +54,7 @@ function Card({
   }, [state, toast, success, resetOnSuccess]);
 
   return (
-    <section id={id} className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6">
+    <section id={id} className="scroll-mt-24 rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6">
       <h2 className="font-display text-xl font-semibold text-ink">{title}</h2>
       <p className="mt-1 text-sm text-muted">{description}</p>
       <form ref={formRef} action={formAction} className="mt-5 space-y-4">
@@ -132,7 +132,7 @@ export function StoreSettingsForms({ settings, canEdit }: { settings: StoreSetti
       >
         {(s) => (
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field name="email" label="Correo electrónico" type="email" defaultValue={v(s, "email", settings.contact.email)} placeholder="eventos@casadelcamba.com" />
+            <Field name="email" label="Correo electrónico" type="email" defaultValue={v(s, "email", settings.contact.email)} placeholder="correo@ejemplo.com" />
             <Field name="phone" label="Teléfono" defaultValue={v(s, "phone", settings.contact.phone)} placeholder="+591 700 00000" />
             <Field
               name="whatsapp"
@@ -267,13 +267,12 @@ export function PasswordForm() {
   );
 }
 
-export function AddTeamMemberForm({ branches }: { branches: { id: string; name: string }[] }) {
-  const [role, setRole] = useState<"STAFF" | "ADMIN">("STAFF");
+export function AddTeamMemberForm() {
   return (
     <Card
       id="team-add"
       title="Agregar miembro del equipo"
-      description="El personal entra solo a su sucursal y gestiona pedidos, inventario y productos. Solo los administradores ven todas las sucursales y cambian los ajustes."
+      description="El personal gestiona pedidos, inventario y productos. Solo los administradores cambian los ajustes."
       action={addTeamMember}
       success="Miembro del equipo agregado"
       resetOnSuccess
@@ -292,37 +291,11 @@ export function AddTeamMemberForm({ branches }: { branches: { id: string; name: 
               id="set-role"
               name="role"
               defaultValue={s.ok ? "STAFF" : s.values?.role ?? "STAFF"}
-              onChange={(e) => setRole(e.target.value === "ADMIN" ? "ADMIN" : "STAFF")}
               className={input}
             >
               <option value="STAFF">Personal</option>
               <option value="ADMIN">Administrador</option>
             </select>
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="set-branchId" className={labelCls}>
-              Sucursal {role === "STAFF" ? "" : "(los administradores ven todas)"}
-            </label>
-            <select
-              id="set-branchId"
-              name="branchId"
-              defaultValue={s.ok ? "" : s.values?.branchId ?? ""}
-              required={role === "STAFF"}
-              disabled={role === "ADMIN"}
-              className={input}
-            >
-              <option value="">{role === "ADMIN" ? "Todas las sucursales" : "Elige una sucursal…"}</option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-            {branches.length === 0 && (
-              <p className="mt-1 text-xs text-amber-700">
-                Todavía no hay sucursales activas. Créalas en Sucursales antes de agregar personal.
-              </p>
-            )}
           </div>
         </div>
       )}

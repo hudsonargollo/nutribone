@@ -40,7 +40,7 @@ export function ProductForm({
         <input name="slug" defaultValue={v?.slug ?? product?.slug} className={input} placeholder="automático" />
       </Row>
       <Row label={isCombo ? "Qué incluye el combo" : "Descripción"} required={isCombo}>
-        <textarea name="description" rows={4} required={isCombo} defaultValue={v?.description ?? product?.description ?? ""} className={input} placeholder={isCombo ? "Ej. 2 empanadas de keperí + majao de pato + 2 bebidas de 500 ml" : undefined} />
+        <textarea name="description" rows={4} required={isCombo} defaultValue={v?.description ?? product?.description ?? ""} className={input} placeholder={isCombo ? "Ej. 3 caldos de 500 ml + 1 pack de cubitos + 1 shot antiinflamatorio" : undefined} />
       </Row>
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -54,7 +54,7 @@ export function ProductForm({
           <input name="sku" defaultValue={v?.sku ?? product?.sku ?? ""} className={input} />
         </Row>
         <Row label="Presentación">
-          <input name="material" defaultValue={v?.material ?? product?.material ?? ""} className={input} placeholder="Ej. 500 ml · Para 2 personas" />
+          <input name="material" defaultValue={v?.material ?? product?.material ?? ""} className={input} placeholder="Ej. Frasco 500 ml · Pack semanal" />
         </Row>
         {isCombo ? (
           <input type="hidden" name="categoryId" value={product?.categoryId ?? "combos"} />
@@ -83,7 +83,7 @@ export function ProductForm({
           rows={6}
           defaultValue={v?.specs ?? product?.specs ?? ""}
           className={input}
-          placeholder={`Presentación: Plato individual\nIngredientes: Arroz, pato y urucú\nAcompañamiento: Yuca frita y plátano\nBebida: 500 ml`}
+          placeholder={`Presentación: Frasco 500 ml\nIngredientes: Huesos de res, agua, zanahoria, apio y cebolla\nCocción: 48 horas a fuego lento\nConservación: Freezer 3 meses · refrigerador 4 días`}
         />
       </Row>
 
@@ -91,14 +91,12 @@ export function ProductForm({
         <ImageUploader initial={product?.images ?? []} />
       </Row>
 
-      {isCombo && !product && (
-        <Row label="Stock inicial por sucursal" hint="Unidades del combo completo en cada sucursal activa. Luego puedes ajustarlas por sucursal en Inventario; no se descuenta stock de sus componentes.">
-          <input name="initialStock" type="number" min="0" max="100000" step="1" defaultValue={v?.initialStock ?? 0} className={input} />
-        </Row>
-      )}
-      {isCombo && product && (
-        <p className="text-sm text-muted">Gestiona las unidades del combo por sucursal desde <Link href="/admin/inventory" className="underline">Inventario</Link>.</p>
-      )}
+      <Row
+        label="Stock"
+        hint={isCombo ? "Unidades del combo completo. No se descuenta stock de sus componentes." : "Unidades disponibles en la tienda. También puedes ajustarlas desde Inventario."}
+      >
+        <input name="stock" type="number" min="0" max="100000" step="1" defaultValue={v?.stock ?? product?.stock ?? 0} className={input} />
+      </Row>
 
       <div className="flex flex-wrap gap-6">
         <label className="flex items-center gap-2 text-sm text-ink">
@@ -107,7 +105,7 @@ export function ProductForm({
         </label>
         <label className="flex items-center gap-2 text-sm text-ink">
           <input type="checkbox" name="active" defaultChecked={v ? v.active === "on" : product?.active ?? !isCombo} className="accent-[var(--color-accent-strong)]" />
-          {isCombo ? "Publicar en el menú" : "Activo (visible en la tienda)"}
+          {isCombo ? "Publicar en la tienda" : "Activo (visible en la tienda)"}
         </label>
       </div>
 
@@ -119,7 +117,7 @@ export function ProductForm({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full bg-accent px-8 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60"
+          className="rounded-full bg-accent px-8 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60"
         >
           {pending ? "Guardando…" : submitLabel}
         </button>
@@ -132,7 +130,7 @@ export function ProductForm({
 }
 
 const input =
-  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(255,204,4,0.2)]";
+  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(201,138,46,0.2)]";
 
 function ImageUploader({ initial }: { initial: string[] }) {
   const [urls, setUrls] = useState<string[]>(initial);

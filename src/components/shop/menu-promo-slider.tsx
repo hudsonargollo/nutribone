@@ -5,39 +5,39 @@ import Link from "next/link";
 
 const SLIDES = [
   {
-    src: "/imgs/menu/majao-de-pato.jpeg",
+    src: "/images/variants.jpg",
     focus: "center 55%",
-    tag: "Platos típicos",
-    cta: "Ver los platos",
-    href: "#platos",
+    tag: "Caldos",
+    cta: "Ver los caldos",
+    href: "#caldos",
   },
   {
-    src: "/imgs/menu/churrasco.jpeg",
+    src: "/images/icecubes.jpg",
     focus: "center 55%",
-    tag: "Parrilla",
-    cta: "Ver parrilla",
-    href: "/shop/parrilla",
+    tag: "IceCubes",
+    cta: "Ver cubitos",
+    href: "#cubitos",
   },
   {
-    src: "/imgs/menu/empanadas-de-keperi-6-unid.jpeg",
+    src: "/images/origen.jpg",
     focus: "center 55%",
-    tag: "Empanadas",
-    cta: "Ver empanadas",
-    href: "/shop/empanadas",
+    tag: "Origen",
+    cta: "Ver en polvo",
+    href: "#origen",
   },
   {
-    src: "/imgs/menu/tres-cambitas.jpeg",
-    focus: "center 55%",
-    tag: "Postres",
-    cta: "Ver postres",
-    href: "#postres",
-  },
-  {
-    src: "/imgs/menu/gaseosa-coca-cola-500-ml.jpg",
+    src: "/images/nutriglow-crema.webp",
     focus: "center 50%",
-    tag: "Bebidas",
-    cta: "Ver bebidas",
-    href: "#bebidas",
+    tag: "NutriGlow",
+    cta: "Ver skincare",
+    href: "#nutriglow",
+  },
+  {
+    src: "/images/shot.jpg",
+    focus: "center 50%",
+    tag: "Extras",
+    cta: "Ver extras",
+    href: "#extras",
   },
 ];
 
@@ -85,7 +85,7 @@ export function MenuPromoSlider() {
             Los favoritos de la casa
           </h2>
           <p className="mt-2 text-sm text-muted sm:text-base">
-            Descubre los platos de siempre y los favoritos de la casa. Elige el tuyo del menú.
+            Descubre nuestros caldos, cubitos y favoritos de la casa. Elige el tuyo en la tienda.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export function MenuPromoSlider() {
                   className="absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(180deg, rgba(29,58,14,0) 45%, rgba(29,58,14,0.55) 100%)",
+                      "linear-gradient(180deg, rgba(31,51,32,0) 45%, rgba(31,51,32,0.55) 100%)",
                   }}
                 />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-6">
@@ -161,7 +161,7 @@ export function MenuPromoSlider() {
                   </span>
                   <Link
                     href={slide.href}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-xs font-bold text-brand-deep shadow-[0_12px_28px_-14px_rgba(255,204,4,0.9)] transition hover:bg-accent-soft sm:px-5 sm:py-2.5 sm:text-sm"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-xs font-bold text-brand-deep shadow-[0_12px_28px_-14px_rgba(201,138,46,0.9)] transition hover:bg-accent-soft sm:px-5 sm:py-2.5 sm:text-sm"
                   >
                     {slide.cta}
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">

@@ -10,10 +10,10 @@ type Action = (prev: OtpState, fd: FormData) => Promise<OtpState>;
 const LENGTH = 6;
 
 const boxCls =
-  "h-14 w-11 rounded-xl border border-[var(--line-strong)] bg-surface text-center font-display text-2xl font-semibold text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(255,204,4,0.3)] disabled:opacity-60 sm:h-16 sm:w-12";
+  "h-14 w-11 rounded-xl border border-[var(--line-strong)] bg-surface text-center font-display text-2xl font-semibold text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(201,138,46,0.3)] disabled:opacity-60 sm:h-16 sm:w-12";
 
 const submitBtn =
-  "w-full rounded-full bg-gradient-to-r from-accent-soft via-accent to-accent-strong px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-brand-deep shadow-[0_16px_36px_-14px_rgba(255,204,4,0.75)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105 disabled:opacity-60";
+  "w-full rounded-full bg-gradient-to-r from-accent-soft via-accent to-accent-strong px-6 py-3.5 text-sm font-bold uppercase tracking-[0.14em] text-brand-deep shadow-[0_16px_36px_-14px_rgba(201,138,46,0.75)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105 disabled:opacity-60";
 
 export function OtpForm({
   maskedEmail,

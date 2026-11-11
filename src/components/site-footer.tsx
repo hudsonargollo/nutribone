@@ -2,30 +2,30 @@ import Link from "next/link";
 import { type StoreSettings, whatsappUrl, phoneHref } from "@/lib/settings-shared";
 import { EmailLink } from "./email-link";
 import { InstagramIcon } from "@/components/icons";
+import { Wordmark } from "./brand/emblem";
 
 // Contact details & socials come from Admin → Settings. Anything left blank is
 // hidden rather than showing a placeholder.
 
 const NAV = [
   { label: "Inicio", href: "/" },
-  { label: "Menú", href: "/shop" },
-  { label: "Sucursales", href: "/sucursal" },
+  { label: "Productos", href: "/shop" },
   { label: "Nosotros", href: "/about" },
   { label: "Contacto", href: "/contact" },
 ];
 
 const HELP = [
   { label: "Estado de pedido", href: "/account/orders" },
-  { label: "Delivery y devoluciones", href: "/shipping" },
-  { label: "Ingredientes y alergias", href: "/care" },
+  { label: "Cómo consumir y conservar", href: "/care" },
+  { label: "Delivery y envíos", href: "/shipping" },
   { label: "Preguntas frecuentes", href: "/faq" },
 ];
 
 const TRUST = [
-  "Hecho al momento",
-  "Delivery y retiro",
-  "Pago contra entrega",
-  "Tradición camba desde 1986",
+  "48 h de cocción lenta",
+  "100% natural · sin conservantes",
+  "Delivery gratis · 4to anillo",
+  "Hecho en Santa Cruz",
 ];
 
 export function SiteFooter({ settings }: { settings: StoreSettings }) {
@@ -35,38 +35,31 @@ export function SiteFooter({ settings }: { settings: StoreSettings }) {
     whatsappUrl: whatsappUrl(settings),
     phoneHref: phoneHref(settings),
   };
-  // The programme name (and whether it exists at all) comes from Admin → Club Camba.
+  // The programme name (and whether it exists at all) comes from Admin → Club.
   const help = settings.loyalty.enabled
-    ? [{ label: settings.loyalty.name, href: "/club-camba" }, ...HELP]
+    ? [{ label: settings.loyalty.name, href: "/club" }, ...HELP]
     : HELP;
   return (
     <footer
       className="relative overflow-hidden text-light/80"
-      style={{ background: "linear-gradient(180deg, #3c6e1b 0%, #1d3a0e 100%)" }}
+      style={{ background: "linear-gradient(180deg, #2e4a2e 0%, #1f3320 100%)" }}
     >
       {/* accent top line + soft glow */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(255,216,102,0.7)] to-transparent" />
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(227,178,100,0.7)] to-transparent" />
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-56"
-        style={{ background: "radial-gradient(50% 100% at 50% 0%, rgba(255,216,102,0.12), transparent 70%)" }}
+        style={{ background: "radial-gradient(50% 100% at 50% 0%, rgba(227,178,100,0.12), transparent 70%)" }}
       />
 
       <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 md:grid-cols-12 md:gap-10">
         {/* Brand + socials */}
         <div className="flex flex-col items-center text-center md:col-span-4 md:items-start md:text-left">
-          <Link href="/" aria-label="Casa del Camba — inicio" className="inline-flex">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/casadelcamba-logo.png"
-              alt="Casa del Camba"
-              width={228}
-              height={169}
-              className="h-14 w-auto"
-            />
+          <Link href="/" aria-label="NutriBone — inicio" className="inline-flex text-light">
+            <Wordmark />
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-light/60">
-            Comida típica cruceña desde 1986: majao, picantes, empanadas de keperí y
-            parrilla — con delivery y retiro en tienda.
+            Caldo de huesos artesanal: 48 horas de cocción lenta, lotes pequeños y
+            nutrición real. El poder de sanar en cada sorbo.
           </p>
           <div className="mt-6 flex gap-3">
             {CONTACT.instagram && (
@@ -93,7 +86,7 @@ export function SiteFooter({ settings }: { settings: StoreSettings }) {
               <EmailLink
                 email={CONTACT.email}
                 ariaLabel="Correo"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(255,216,102,0.35)] text-light/80 transition hover:border-accent hover:bg-accent hover:text-brand-deep"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(227,178,100,0.35)] text-light/80 transition hover:border-accent hover:bg-accent hover:text-brand-deep"
               >
                 <MailIcon />
               </EmailLink>
@@ -141,7 +134,7 @@ export function SiteFooter({ settings }: { settings: StoreSettings }) {
       </div>
 
       {/* Trust strip */}
-      <div className="relative border-t border-[rgba(255,216,102,0.18)]">
+      <div className="relative border-t border-[rgba(227,178,100,0.18)]">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-6 py-4 text-[0.68rem] uppercase tracking-[0.16em] text-light/55">
           {TRUST.map((t) => (
             <span key={t} className="flex items-center gap-1.5">
@@ -155,10 +148,10 @@ export function SiteFooter({ settings }: { settings: StoreSettings }) {
       </div>
 
       {/* Bottom bar */}
-      <div className="relative border-t border-[rgba(255,216,102,0.18)]">
+      <div className="relative border-t border-[rgba(227,178,100,0.18)]">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-5 text-center text-xs text-light/45 sm:flex-row sm:text-left">
-          <span>© {new Date().getFullYear()} Casa del Camba. Todos los derechos reservados.</span>
-          <span>Hecho en Santa Cruz, Bolivia · El mejor sabor de Santa Cruz</span>
+          <span>© {new Date().getFullYear()} NutriBone. Todos los derechos reservados.</span>
+          <span>Santa Cruz de la Sierra, Bolivia · El poder de sanar en cada sorbo</span>
         </div>
       </div>
     </footer>
@@ -206,7 +199,7 @@ function Social({
       // Web profiles open in a new tab; mailto:/tel: open the mail/phone app directly.
       {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       aria-label={label}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(255,216,102,0.35)] text-light/80 transition hover:border-accent hover:bg-accent hover:text-brand-deep"
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(227,178,100,0.35)] text-light/80 transition hover:border-accent hover:bg-accent hover:text-brand-deep"
     >
       {children}
     </a>

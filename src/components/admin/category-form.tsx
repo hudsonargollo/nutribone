@@ -5,7 +5,7 @@ import { createCategory } from "@/app/admin/(dashboard)/categories/actions";
 import { useToast } from "@/components/ui/toast";
 
 const input =
-  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(255,204,4,0.2)]";
+  "w-full rounded-lg border border-[var(--line-strong)] bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(201,138,46,0.2)]";
 
 export function AddCategoryForm() {
   const [state, action, pending] = useActionState(createCategory, {});
@@ -26,7 +26,7 @@ export function AddCategoryForm() {
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-[0.1em] text-muted">Nombre</label>
-          <input name="name" required placeholder="Ej. Empanadas" className={input} />
+          <input name="name" required placeholder="Ej. Caldos" className={input} />
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-[0.1em] text-muted">Slug (opcional)</label>

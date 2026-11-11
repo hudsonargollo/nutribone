@@ -2,15 +2,15 @@ import { getAdminOrders } from "@/lib/admin-data";
 import { formatPrice } from "@/lib/format";
 import { DbBanner } from "@/components/admin/db-banner";
 import { OrdersTable } from "@/components/admin/orders-table";
-import { requireAdmin, scopeBranchId } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Pedidos" };
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage() {
-  const session = await requireAdmin(); // layouts don't re-run on client navigation
-  const { dbConnected, orders } = await getAdminOrders(scopeBranchId(session));
+  await requireAdmin(); // layouts don't re-run on client navigation
+  const { dbConnected, orders } = await getAdminOrders();
 
   const revenue = orders
     .filter((o) => o.status !== "CANCELLED")
@@ -69,7 +69,7 @@ export default async function AdminOrdersPage() {
 
 function MiniStat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="rounded-xl border border-[var(--line)] bg-surface p-4 shadow-[0_10px_30px_-24px_rgba(29,58,14,0.4)]">
+    <div className="rounded-xl border border-[var(--line)] bg-surface p-4 shadow-[0_10px_30px_-24px_rgba(31,51,32,0.4)]">
       <p className="text-[0.62rem] font-medium uppercase tracking-[0.18em] text-muted">{label}</p>
       <p className={`mt-1.5 font-display text-2xl font-bold ${accent ? "text-accent-strong" : "text-ink"}`}>
         {value}

@@ -1,7 +1,7 @@
 // Options for the custom-order request form (shared by the form + server action).
-export const PIECE_TYPES = ["Platos típicos", "Parrilla", "Empanadas", "Postres", "Bebidas", "Pedido para evento", "Otro"] as const;
-export const FINISHES = ["Individual", "Para 2 personas", "Para 4 personas", "Bandeja para compartir", "No estoy seguro"] as const;
-export const BUDGETS = ["Menos de Bs 100", "Bs 100 – 300", "Bs 300 – 600", "Bs 600 o más", "No estoy seguro"] as const;
+export const PIECE_TYPES = ["Caldos de huesos", "Cubitos / IceCubes", "Origen (caldo en polvo)", "NutriGlow (skincare)", "Shots y extras", "Pedido por mayor", "Otro"] as const;
+export const FINISHES = ["Frasco individual", "Pack semanal (7)", "Pack mensual (30)", "Por mayor / volumen", "No estoy seguro"] as const;
+export const BUDGETS = ["Menos de Bs 50", "Bs 50 – 150", "Bs 150 – 400", "Bs 400 o más", "No estoy seguro"] as const;
 
 // Reference photos attached to a custom-order request.
 export const MAX_REFERENCE_PHOTOS = 3;

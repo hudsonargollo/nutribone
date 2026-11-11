@@ -7,7 +7,7 @@ import { getStoreSettings } from "@/lib/settings";
 export const metadata: Metadata = {
   alternates: { canonical: "/shipping" },
   title: "Delivery y devoluciones",
-  description: "Delivery en moto y retiro en sucursal en Santa Cruz, Bolivia: costos, tiempos y política de devoluciones de Casa del Camba.",
+  description: "Delivery a domicilio en Santa Cruz de la Sierra: gratis dentro del 4to anillo, tiempos, pedidos por encargo y política de devoluciones de NutriBone.",
 };
 
 export default async function ShippingPage() {
@@ -26,19 +26,19 @@ export default async function ShippingPage() {
 
       <div className="mt-12 space-y-10">
         <section>
-          <h2 className="font-display text-2xl font-bold text-ink">Delivery en moto</h2>
+          <h2 className="font-display text-2xl font-bold text-ink">Delivery a domicilio</h2>
           <ul className="mt-4 space-y-3 text-ink/80">
-            <li>• Delivery en moto en Santa Cruz. Entrega estimada: {DELIVERY_TIME}. El tiempo puede variar según la preparación, la demanda y la distancia.</li>
+            <li>• Somos un negocio 100% digital: entregamos a domicilio en Santa Cruz de la Sierra. Entrega estimada: {DELIVERY_TIME}. El tiempo puede variar según la preparación, la demanda y la distancia.</li>
             <li>
-              • Costo de delivery: <strong>{formatPrice(FLAT_SHIPPING)}</strong>
+              • Costo de delivery: <strong>{FLAT_SHIPPING > 0 ? formatPrice(FLAT_SHIPPING) : "gratis"}</strong>
               {FREE_SHIPPING_THRESHOLD > 0 ? (
                 <> — <strong>gratis</strong> en pedidos desde {formatPrice(FREE_SHIPPING_THRESHOLD)}.</>
               ) : (
-                <> — y <strong>gratis</strong> en todos los pedidos de Casa del Camba.</>
+                <> dentro del <strong>4to anillo</strong>, sin mínimo de compra.</>
               )}
             </li>
-            <li>• Preparamos tu pedido al momento y sale directo de la sucursal que elegiste.</li>
-            <li>• También puedes retirar en tienda sin costo: te avisamos por WhatsApp cuando esté listo.</li>
+            <li>• El caldo se hace por encargo en lotes de cocción lenta (48h). Pide con al menos 24h de anticipación dentro de una ventana de unos 10 días.</li>
+            <li>• Para fuera del 4to anillo o envíos especiales, coordina con el equipo por WhatsApp. No tenemos local físico ni retiro en tienda.</li>
           </ul>
         </section>
 
@@ -46,9 +46,10 @@ export default async function ShippingPage() {
           <h2 className="font-display text-2xl font-bold text-ink">Cambios y devoluciones</h2>
           <ul className="mt-4 space-y-3 text-ink/80">
             <li>• Si tu pedido llega incompleto o en mal estado, contáctanos con tu número de pedido y cuéntanos qué pasó.</li>
-            <li>• Nos importa que disfrutes tu comida. Revisamos lo ocurrido con cuidado y lo más rápido posible.</li>
+            <li>• Nos importa que disfrutes tu pedido. Revisamos lo ocurrido con cuidado y lo más rápido posible.</li>
             <li>• Adjunta una foto del pedido si puedes: nos ayuda a revisar lo ocurrido.</li>
             <li>• Coordinamos contigo la solución más adecuada para tu pedido.</li>
+            <li>• Nuestros frascos son retornables: devuélvelos y obtén descuento en tu próximo pedido.</li>
           </ul>
         </section>
 

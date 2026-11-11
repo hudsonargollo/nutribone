@@ -1,32 +1,49 @@
-// The store's brand mark — the Casa del Camba logo. `SunMark` is the line-art
-// sun from the logo, used for faint decorative watermarks where the
-// full-colour mark would be too heavy.
+// NutriBone brand marks: a steaming broth bowl (Emblem), rising steam used as a
+// faint decorative watermark (SteamMark), and the letterspaced serif wordmark.
 
 type MarkProps = {
   size?: number;
   className?: string;
-  /** Kept for call sites that still pass a colour; the logo carries its own. */
   color?: string;
-  /** Highlight used by the sun watermark (rays). */
   accent?: string;
 };
 
-export function Emblem({ size = 44, className = "" }: MarkProps) {
+export function Emblem({
+  size = 44,
+  className = "",
+  color = "currentColor",
+  accent = "var(--color-accent)",
+}: MarkProps) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/images/casadelcamba-icon.png"
-      alt=""
+    <svg
       width={size}
       height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      className={`shrink-0 ${className}`}
       aria-hidden="true"
-      className={`shrink-0 rounded-[22%] object-cover ${className}`}
-      style={{ width: size, height: size }}
-    />
+    >
+      {/* steam */}
+      <path
+        d="M24 10c-3 4 3 7 0 11M32 8c-3 4 3 7 0 11M40 10c-3 4 3 7 0 11"
+        stroke={accent}
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      {/* bowl */}
+      <path d="M10 30h44" stroke={color} strokeWidth="3.2" strokeLinecap="round" />
+      <path
+        d="M13 30c0 13 8.5 22 19 22s19-9 19-22"
+        stroke={color}
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      <path d="M25 56h14" stroke={color} strokeWidth="3.2" strokeLinecap="round" />
+    </svg>
   );
 }
 
-export function SunMark({
+export function SteamMark({
   size = 44,
   className = "",
   color = "currentColor",
@@ -41,15 +58,37 @@ export function SunMark({
       className={className}
       aria-hidden="true"
     >
-      {/* sun disc */}
-      <circle cx="32" cy="32" r="13" stroke={color} strokeWidth="3.2" />
-      {/* rays */}
       <path
-        d="M32 8v7M32 49v7M8 32h7M49 32h7M15 15l5 5M44 44l5 5M49 15l-5 5M20 44l-5 5"
+        d="M20 8c-5 7 5 11 0 18s5 11 0 18M32 6c-5 7 5 11 0 18s5 11 0 18M44 8c-5 7 5 11 0 18s5 11 0 18"
+        stroke={color}
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <path
+        d="M14 54h36"
         stroke={accent}
         strokeWidth="3"
         strokeLinecap="round"
       />
     </svg>
+  );
+}
+
+export function Wordmark({
+  className = "",
+  sub = true,
+}: {
+  className?: string;
+  sub?: boolean;
+}) {
+  return (
+    <span className={`inline-flex flex-col items-center leading-none ${className}`}>
+      <span className="font-display text-xl font-semibold tracking-[0.3em]">NUTRIBONE</span>
+      {sub && (
+        <span className="mt-1.5 font-sans text-[0.55rem] font-medium uppercase tracking-[0.42em] opacity-70">
+          Caldo de huesos
+        </span>
+      )}
+    </span>
   );
 }

@@ -65,7 +65,7 @@ export function ContactForm({ topic, defaultSubject }: { topic?: string; default
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full bg-accent px-9 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60"
+        className="rounded-full bg-accent px-9 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft disabled:opacity-60"
       >
         {pending ? "Enviando…" : "Enviar mensaje"}
       </button>

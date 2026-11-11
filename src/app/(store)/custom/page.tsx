@@ -7,14 +7,14 @@ import { whatsappUrl } from "@/lib/settings-shared";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/custom" },
-  title: "Pedidos para eventos",
-  description: "Platos típicos y pedidos por volumen para cumpleaños, eventos y empresas en Casa del Camba.",
+  title: "Pedidos por mayor",
+  description: "Pedidos por volumen de caldo de huesos, cubitos, Origen, NutriGlow y shots para negocios, eventos y consumo frecuente en NutriBone.",
 };
 
 const STEPS = [
-  { n: "1", title: "Cuéntanos tu evento", body: "Cuántas personas son, qué te gustaría y para qué fecha lo necesitas." },
-  { n: "2", title: "Armamos tu pedido", body: "Coordinamos disponibilidad, opciones, precio y un horario estimado de entrega o retiro." },
-  { n: "3", title: "Lo disfrutan", body: "Preparamos tu pedido según lo coordinado; los tiempos estimados dependen de la preparación, la demanda y la distancia." },
+  { n: "1", title: "Cuéntanos qué necesitas", body: "Qué producto, qué cantidad y para qué fecha lo necesitas." },
+  { n: "2", title: "Armamos tu pedido", body: "Coordinamos disponibilidad, opciones, precio y un horario estimado de entrega." },
+  { n: "3", title: "Lo recibes", body: "Preparamos tu pedido por encargo según lo coordinado; los tiempos estimados dependen de la preparación, la demanda y la distancia." },
 ];
 
 export default async function CustomPage() {
@@ -24,21 +24,21 @@ export default async function CustomPage() {
       <OrnateFrame className="mx-auto max-w-4xl bg-panel">
         <div className="px-6 py-16 text-center sm:px-14">
           <Emblem size={48} className="mx-auto text-accent-strong" />
-          <span className="eyebrow mt-4 block">Cumpleaños, eventos y empresas</span>
+          <span className="eyebrow mt-4 block">Negocios, eventos y consumo frecuente</span>
           <h1 className="mt-2 font-display text-4xl font-semibold text-ink sm:text-5xl">
-            Pedidos para eventos
+            Pedidos por mayor
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-ink/80">
-            ¿Organizas un cumpleaños, una reunión o un pedido grande para tu equipo? Preparamos
-            pedidos a tu medida, con platos típicos, empanadas, parrilla, postres y bebidas
-            listos para compartir.
+            ¿Tienes un negocio, organizas un evento o quieres tu ritual de caldo siempre a
+            mano? Preparamos pedidos por volumen a tu medida: caldos de huesos, cubitos
+            IceCubes, Origen en polvo, NutriGlow y shots antiinflamatorios.
           </p>
           {/* Jumps to the request form further down this page */}
           <a
             href="#design-request"
-            className="mt-9 inline-block rounded-full bg-accent px-9 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
+            className="mt-9 inline-block rounded-full bg-accent px-9 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-brand-deep shadow-[0_14px_32px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
           >
-            Pedir para mi evento
+            Pedir por mayor
           </a>
           <p className="mt-3 text-xs text-muted">
             Rellena un formulario breve para coordinar tu pedido con nuestro equipo.
@@ -68,7 +68,7 @@ export default async function CustomPage() {
       >
         <div className="text-center">
           <span className="eyebrow">Paso 1</span>
-          <h2 className="mt-2 font-display text-3xl font-semibold text-ink">Cuéntanos tu evento</h2>
+          <h2 className="mt-2 font-display text-3xl font-semibold text-ink">Cuéntanos qué necesitas</h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
             Completa lo que puedas — nuestro equipo te contactará lo antes posible para coordinar disponibilidad, opciones y precio.
           </p>

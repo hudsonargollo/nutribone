@@ -17,7 +17,7 @@ export type SignedOutReason = "replaced" | "db";
 export async function verifyCredentials(
   email: string,
   password: string
-): Promise<{ ok: true; role: string; ver: number; branchId: string | null } | { ok: false; reason: "invalid" | "db" }> {
+): Promise<{ ok: true; role: string; ver: number } | { ok: false; reason: "invalid" | "db" }> {
   const e = email.trim().toLowerCase();
 
   try {
@@ -29,7 +29,7 @@ export async function verifyCredentials(
       data: { updatedAt: new Date() },
       select: { updatedAt: true },
     });
-    return { ok: true, role: user.role, ver: updatedAt.getTime(), branchId: user.branchId ?? null };
+    return { ok: true, role: user.role, ver: updatedAt.getTime() };
   } catch (err) {
     console.error("[admin-login] database error:", err);
     return { ok: false, reason: "db" };
@@ -47,13 +47,13 @@ export async function checkAdmin(): Promise<
   try {
     const user = await prisma.user.findUnique({
       where: { email: session.email },
-      select: { role: true, branchId: true, updatedAt: true },
+      select: { role: true, updatedAt: true },
     });
     if (!user) return { session: null, reason: null };
     if (user.updatedAt.getTime() !== session.ver) return { session: null, reason: "replaced" };
-    // The DB is authoritative: moving a staff member between branches (or
-    // promoting them) applies on the next request, not on the next sign-in.
-    return { session: { ...session, role: user.role, branchId: user.branchId ?? null } };
+    // The DB is authoritative: promoting (or demoting) a staff member applies
+    // on the next request, not on the next sign-in.
+    return { session: { ...session, role: user.role } };
   } catch {
     return { session: null, reason: "db" };
   }
@@ -70,7 +70,7 @@ export async function requireAdmin(): Promise<AdminSession> {
   return session;
 }
 
-/** Owner-only pages (branches, settings): staff are sent back to the dashboard. */
+/** Owner-only pages (settings): staff are sent back to the dashboard. */
 export async function requireOwner(): Promise<AdminSession> {
   const session = await requireAdmin();
   if (session.role !== "ADMIN") redirect("/admin");
@@ -82,25 +82,7 @@ export async function requireOwner(): Promise<AdminSession> {
 export async function refreshAdminSession(email: string): Promise<void> {
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { role: true, branchId: true, updatedAt: true },
+    select: { role: true, updatedAt: true },
   });
-  if (user) await startSession(email, user.role, user.updatedAt.getTime(), user.branchId ?? null);
-}
-
-/** Admins are global; staff may only touch their own branch. */
-export function canAccessBranch(session: AdminSession, branchId: string): boolean {
-  return session.role === "ADMIN" || session.branchId === branchId;
-}
-
-/** A Prisma `where` fragment that limits a query to what this admin may see.
- *  Staff without a branch (misconfigured account) see nothing. */
-export function branchWhere(session: AdminSession): { branchId?: string } {
-  if (session.role === "ADMIN") return {};
-  return { branchId: session.branchId ?? "__none__" };
-}
-
-/** Branch id to scope data queries with: null for a global admin, the staff
- *  member's branch otherwise. */
-export function scopeBranchId(session: AdminSession): string | null {
-  return session.role === "ADMIN" ? null : (session.branchId ?? "__none__");
+  if (user) await startSession(email, user.role, user.updatedAt.getTime());
 }

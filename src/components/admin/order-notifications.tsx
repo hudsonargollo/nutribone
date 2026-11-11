@@ -104,7 +104,7 @@ export function OrderNotifications() {
       // OS notification (works even if the tab is in the background)
       try {
         if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-          const n = new Notification("Nuevo pedido · Casa del Camba", {
+          const n = new Notification("Nuevo pedido · NutriBone", {
             body: `${order.orderNumber} — ${formatPrice(order.total)} · ${order.customerName}`,
             tag: order.id,
           });
@@ -219,7 +219,7 @@ export function OrderNotifications() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-[var(--line)] bg-surface text-ink shadow-[0_24px_60px_-24px_rgba(29,58,14,0.5)]">
+          <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-[var(--line)] bg-surface text-ink shadow-[0_24px_60px_-24px_rgba(31,51,32,0.5)]">
             <div className="flex items-center justify-between border-b border-[var(--line)] px-4 py-3">
               <span className="font-display text-base font-semibold">Notificaciones</span>
               <span className="text-[0.68rem] text-muted">
@@ -269,7 +269,7 @@ export function OrderNotifications() {
         <Link
           href={`/admin/orders/${toast.id}`}
           onClick={() => setToast(null)}
-          className="fixed bottom-5 right-5 z-[60] flex w-[19rem] items-start gap-3 rounded-xl border border-accent/40 bg-surface p-4 text-ink shadow-[0_24px_60px_-20px_rgba(29,58,14,0.55)] animate-[toastin_.35s_ease]"
+          className="fixed bottom-5 right-5 z-[60] flex w-[19rem] items-start gap-3 rounded-xl border border-accent/40 bg-surface p-4 text-ink shadow-[0_24px_60px_-20px_rgba(31,51,32,0.55)] animate-[toastin_.35s_ease]"
         >
           <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-soft to-accent text-brand">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

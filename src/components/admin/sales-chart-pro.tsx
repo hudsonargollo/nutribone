@@ -67,8 +67,8 @@ function palette() {
         grid: "rgba(22,69,42,0.07)",
         border: "rgba(22,69,42,0.14)",
         line: "#ce5f10",
-        top: "rgba(255,204,4,0.45)",
-        bottom: "rgba(255,204,4,0.02)",
+        top: "rgba(201,138,46,0.45)",
+        bottom: "rgba(201,138,46,0.02)",
         cross: "#ce5f10",
         marker: "#ffffff",
         orders: "#6366f1",
@@ -286,7 +286,7 @@ export function SalesChartPro({ points }: { points: DailyPoint[] }) {
   const empty = points.every((p) => p.revenue === 0);
 
   return (
-    <section className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6">
+    <section className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -352,7 +352,7 @@ export function SalesChartPro({ points }: { points: DailyPoint[] }) {
         <div ref={wrapRef} style={{ width: "100%", height: 340 }} />
         {tip && (
           <div
-            className="pointer-events-none absolute z-10 rounded-xl border border-[var(--line)] bg-surface px-3.5 py-2.5 shadow-[0_18px_44px_-18px_rgba(29,58,14,0.5)]"
+            className="pointer-events-none absolute z-10 rounded-xl border border-[var(--line)] bg-surface px-3.5 py-2.5 shadow-[0_18px_44px_-18px_rgba(31,51,32,0.5)]"
             style={{
               left: Math.min(Math.max(tip.x, 70), tip.width - 70),
               top: Math.max(tip.y - 16, 4),

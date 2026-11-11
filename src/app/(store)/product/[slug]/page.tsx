@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
-import { getSelectedBranch } from "@/lib/branch";
-import { formatPrice, discountPercent, visiblePack } from "@/lib/format";
+import { priceLabel, discountPercent, visiblePack } from "@/lib/format";
 import { ProductGallery } from "@/components/product-gallery";
 import { getStoreSettings } from "@/lib/settings";
 import { pointRuleLabel, stampEligible, stampRuleLabel } from "@/lib/loyalty-shared";
@@ -17,8 +16,8 @@ import { siteUrl } from "@/lib/site";
 import { AccordionItem } from "@/components/ui/accordion-item";
 import { toCartLine } from "@/lib/cart";
 
-// Stock and shipping depend on the shopper's branch cookie, so this route is
-// rendered per request. Product data itself stays cached by tag in lib/catalog.
+// Settings and loyalty come from the DB, so this route renders per request.
+// Product data itself stays cached by tag in lib/catalog.
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -27,13 +26,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return { title: "No encontrado" };
-  const description = product.description ?? `${product.name} — disponible en Casa del Camba.`;
+  const description = product.description ?? `${product.name} — disponible en NutriBone.`;
   return {
     title: product.name,
     description,
     alternates: { canonical: `/product/${product.slug}` },
     openGraph: {
-      title: `${product.name} · Casa del Camba`,
+      title: `${product.name} · NutriBone`,
       description,
       type: "website",
       url: `${siteUrl}/product/${product.slug}`,
@@ -42,13 +41,13 @@ export async function generateMetadata({
   };
 }
 
-/** Returns a short neutral attribute note inferred from the product description. */
+/** Short neutral attribute note inferred from the product description. */
 function attributeOf(text: string): string | null {
-  if (/vegetarian/i.test(text)) return "Vegetariana";
-  if (/pollo|corazones/i.test(text)) return "Pollo";
-  if (/calabresa|salchicha/i.test(text)) return "Calabresa";
-  if (/carne|filet/i.test(text)) return "Carne";
-  if (/picante/i.test(text)) return "Picante";
+  if (/antiinflamatorio|cúrcuma/i.test(text)) return "Antiinflamatorio";
+  if (/white|blanqueados/i.test(text)) return "White";
+  if (/polvo|instantáneo/i.test(text)) return "En polvo";
+  if (/cubitos|icecubes/i.test(text)) return "Cubitos";
+  if (/original/i.test(text)) return "Original";
   return null;
 }
 
@@ -58,10 +57,9 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   if (!product) notFound();
 
   const settings = await getStoreSettings();
-  const branch = await getSelectedBranch();
   const DELIVERY_TIME = settings.shipping.deliveryTime;
   const off = discountPercent(product.price, product.compareAtPrice);
-  const related = await getRelatedProducts(product, branch?.id);
+  const related = await getRelatedProducts(product);
   const inStock = product.stock > 0;
   const lowStock = inStock && product.stock <= settings.inventory.lowStockThreshold;
 
@@ -84,7 +82,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   const derivedHighlights: [string, string][] = [
     ["Categoría", product.category.name],
     ...(pack ? ([["Presentación", pack]] as [string, string][]) : []),
-    ...(attribute ? ([["Tipo", attribute]] as [string, string][]) : []),
+    ...(attribute ? ([["Variedad", attribute]] as [string, string][]) : []),
     ["Entrega estimada", DELIVERY_TIME],
   ];
   const highlights = hasCustom ? customSpecs.slice(0, 4) : derivedHighlights;
@@ -95,17 +93,17 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
     : [
         ["Categoría", product.category.name],
         ...(pack ? ([["Presentación", pack]] as [string, string][]) : []),
-        ...(attribute ? ([["Tipo", attribute]] as [string, string][]) : []),
+        ...(attribute ? ([["Variedad", attribute]] as [string, string][]) : []),
         ["Disponibilidad", inStock ? "En stock" : "Agotado"],
         ["Entrega estimada", DELIVERY_TIME],
-        ["Pago", "Contra entrega en tu sucursal Casa del Camba"],
-        ["Atención cuidadosa", "Contáctanos con tu número de pedido"],
+        ["Pago", "QR / transferencia o pago contra entrega"],
+        ["Conservación", "Freezer 3 meses · refrigerador 4 días"],
       ];
 
   const aboutBullets = [
     ...sentences,
-    "Preparado al momento en tu sucursal Casa del Camba.",
-    "Pago contra entrega al recibir, o retiro en tienda sin costo.",
+    "Lotes pequeños y 48 horas de cocción lenta.",
+    "Sin conservantes, aditivos ni azúcares añadidos.",
   ];
 
   const productJsonLd = {
@@ -116,16 +114,20 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
     category: product.category.name,
     ...(pack ? { material: pack } : {}),
     ...(product.images.length ? { image: product.images } : {}),
-    brand: { "@type": "Brand", name: "Casa del Camba" },
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "BOB",
-      price: product.price,
-      availability: inStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      url: `${siteUrl}/product/${product.slug}`,
-    },
+    brand: { "@type": "Brand", name: "NutriBone" },
+    ...(product.price > 0
+      ? {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "BOB",
+            price: product.price,
+            availability: inStock
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+            url: `${siteUrl}/product/${product.slug}`,
+          },
+        }
+      : {}),
   };
 
   return (
@@ -133,7 +135,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
       <JsonLd data={productJsonLd} />
       {/* Breadcrumb */}
       <nav className="text-sm text-muted">
-        <Link href="/shop" className="hover:text-accent-strong">Menú</Link>
+        <Link href="/shop" className="hover:text-accent-strong">Productos</Link>
         <span className="mx-2">/</span>
         <Link href={`/shop/${product.category.slug}`} className="hover:text-accent-strong">
           {product.category.name}
@@ -167,7 +169,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
             <DealPanel price={product.price} compareAt={product.compareAtPrice} percent={off} />
           ) : (
             <div className="mt-4 flex flex-wrap items-baseline gap-3">
-              <span className="font-display text-3xl font-semibold text-ink">{formatPrice(product.price)}</span>
+              <span className="font-display text-3xl font-semibold text-ink">{priceLabel(product.price)}</span>
             </div>
           )}
 
@@ -200,22 +202,22 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
 
           {/* Delivery & assurance */}
           <div className="mt-6 space-y-2.5 rounded-xl border border-[var(--line)] p-4 text-sm">
-            <Assure icon="scooter">Delivery en Santa Cruz. Entrega estimada: <b className="font-medium text-ink">{DELIVERY_TIME}</b>. También puedes retirar en tu sucursal.</Assure>
-            <Assure icon="cash">Pago contra entrega disponible</Assure>
+            <Assure icon="scooter">Delivery en Santa Cruz: <b className="font-medium text-ink">gratis dentro del 4to anillo</b>. {DELIVERY_TIME}.</Assure>
+            <Assure icon="cash">QR / transferencia o pago contra entrega</Assure>
             {settings.loyalty.enabled &&
               stampEligible(
                 { productSlug: product.slug, categorySlug: product.category.slug },
                 settings.loyalty
               ) && (
                 <Assure icon="gift">
-                  <Link href="/club-camba" className="font-medium text-accent-strong hover:underline">
+                  <Link href="/club" className="font-medium text-accent-strong hover:underline">
                     {settings.loyalty.name}
                   </Link>
                   : {stampRuleLabel(settings.loyalty)} y {pointRuleLabel(settings.loyalty)}.
                 </Assure>
               )}
-            <Assure icon="return"><b className="font-medium text-ink">Atención cuidadosa</b>: contáctanos con tu número de pedido y lo revisamos lo más rápido posible</Assure>
-            <Assure icon="shield">Compra segura y atención directa</Assure>
+            <Assure icon="return"><b className="font-medium text-ink">Frascos retornables</b>: devuélvelos y recibe descuento en tu próxima compra</Assure>
+            <Assure icon="shield">100% natural · sin conservantes ni aditivos</Assure>
           </div>
         </div>
       </div>
@@ -236,7 +238,8 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
               </dl>
             </Accordion>
 
-            <Accordion title="Sobre este producto">              <ul className="space-y-2.5">
+            <Accordion title="Sobre este producto">
+              <ul className="space-y-2.5">
                 {aboutBullets.map((b, i) => (
                   <li key={i} className="flex gap-2.5">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-strong" />
@@ -248,30 +251,39 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
 
             <Accordion title="Cómo lo preparamos">
               <p>
-                Se prepara al momento en tu sucursal Casa del Camba y sale directo a tu mesa o a tu
-                puerta. Si quieres hacer un pedido para un evento o por volumen,{" "}
-                <Link href="/contact" className="text-accent-strong underline">escríbenos</Link>{" "}
+                Huesos cuidadosamente seleccionados, vegetales orgánicos de origen local y
+                48 horas de cocción lenta en lotes pequeños. Envasado en frío, sin
+                conservantes ni aditivos. Si quieres un pedido por volumen o para un
+                evento, <Link href="/custom" className="text-accent-strong underline">escríbenos</Link>{" "}
                 y lo coordinamos contigo.
               </p>
             </Accordion>
 
-            <Accordion title="Ingredientes y alergias">
+            <Accordion title="Ingredientes y recomendaciones">
               <ul className="space-y-2 [&>li]:flex [&>li]:gap-2.5">
-                <li><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-strong" /> Trabajamos con lácteos, huevo, maní y gluten (empanadas).</li>
-                <li><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-strong" /> Avísanos si tienes alguna alergia o restricción al confirmar tu pedido.</li>
-                <li><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-strong" /> Los ingredientes de cada plato están detallados en el menú.</li>
+                <li><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-strong" /> Los ingredientes de cada variedad están detallados en su descripción.</li>
+                <li><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-strong" /> La constancia siempre gana a la intensidad: ningún alimento funciona por consumirlo una sola vez.</li>
+                <li><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-strong" /> Consulta siempre con un profesional de la salud, especialmente en embarazo, lactancia o condiciones crónicas.</li>
               </ul>
             </Accordion>
 
-            <Accordion title="Delivery y atención cuidadosa">
+            <Accordion title="Conservación">
               <p>
-                Entregamos en moto en Santa Cruz con{" "}
-                <b className="font-medium text-ink">pago contra entrega</b>. Los pedidos se preparan
-                al momento y salen de la sucursal que elegiste.
-                Si tu pedido llega incompleto o en mal estado, contáctanos con tu{" "}
-                <b className="font-medium text-ink">número de pedido</b>. Nos importa que disfrutes
-                tu comida. Revisamos lo ocurrido con cuidado y lo más rápido posible para
-                coordinar contigo la solución más adecuada.
+                En freezer hasta <b className="font-medium text-ink">3 meses</b>, en refrigerador
+                hasta <b className="font-medium text-ink">4 días</b> y máximo 2 horas a
+                temperatura ambiente. Al enfriar, nuestro caldo queda completamente
+                gelatina: esa es la prueba de su colágeno natural.
+              </p>
+            </Accordion>
+
+            <Accordion title="Delivery y pedidos">
+              <p>
+                Pedidos con al menos <b className="font-medium text-ink">24 h de anticipación</b>;
+                coordinamos la entrega por WhatsApp dentro de los 10 días siguientes.
+                Delivery gratis dentro del 4to anillo; fuera de él, el envío se coordina
+                aparte. Si tu pedido llega incompleto o en mal estado, contáctanos con tu{" "}
+                <b className="font-medium text-ink">número de pedido</b> y lo revisamos contigo
+                lo más rápido posible.
               </p>
             </Accordion>
           </div>
@@ -279,12 +291,12 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
 
         {/* Sticky assurance rail on desktop */}
         <aside className="hidden lg:block">
-          <div className="sticky top-24 rounded-2xl border border-[var(--line)] bg-surface p-6 shadow-[0_20px_50px_-40px_rgba(29,58,14,0.5)]">
-            <p className="font-display text-xl font-semibold text-ink">¿Por qué Casa del Camba?</p>
+          <div className="sticky top-24 rounded-2xl border border-[var(--line)] bg-surface p-6 shadow-[0_20px_50px_-40px_rgba(31,51,32,0.5)]">
+            <p className="font-display text-xl font-semibold text-ink">¿Por qué NutriBone?</p>
             <ul className="mt-4 space-y-3 text-sm text-ink/80">
-              <li className="flex gap-2.5"><Dot /> Todo se prepara al momento en tu sucursal</li>
-              <li className="flex gap-2.5"><Dot /> Pago contra entrega en tu sucursal Casa del Camba</li>
-              <li className="flex gap-2.5"><Dot /> Delivery con entrega estimada: {DELIVERY_TIME}. También puedes retirar en tienda</li>
+              <li className="flex gap-2.5"><Dot /> 48 horas de cocción lenta en lotes pequeños</li>
+              <li className="flex gap-2.5"><Dot /> 100% natural, sin conservantes ni aditivos</li>
+              <li className="flex gap-2.5"><Dot /> Delivery gratis dentro del 4to anillo</li>
               <li className="flex gap-2.5"><Dot /> Atención cercana por WhatsApp</li>
             </ul>
           </div>

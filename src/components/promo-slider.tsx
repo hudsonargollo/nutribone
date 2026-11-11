@@ -16,40 +16,40 @@ const SLIDES: {
   href: string;
 }[] = [
   {
-    src: "/imgs/menu/majao-de-pato.jpeg",
+    src: "/images/variants.jpg",
     focus: "center 55%",
-    label: "Platos típicos",
-    title: "Majao de pato, el clásico",
-    copy: "Arroz batido con pato desmenuzado y urucú, huevo, plátano y yuca frita. El sabor camba de siempre, a Bs 55.",
-    cta: "Ver platos típicos",
-    href: "/shop/platos-tipicos-y-combinados",
+    label: "Caldos de Huesos",
+    title: "El ritual de cada mañana",
+    copy: "Original, White y Antiinflamatorio: 48 horas de cocción lenta en frascos de 100 a 1000 ml, o en packs semanales y mensuales.",
+    cta: "Ver caldos",
+    href: "/shop/caldos",
   },
   {
-    src: "/imgs/menu/empanadas-de-carne-6-unid.jpeg",
+    src: "/images/icecubes.jpg",
     focus: "center 50%",
-    label: "Empanadas",
-    title: "De carne y de keperí",
-    copy: "Seis empanadas recién hechas con salsa tártara para compartir. Las infaltables de la mesa camba.",
-    cta: "Ver empanadas",
-    href: "/shop/empanadas",
+    label: "IceCubes",
+    title: "Tu caldo, en cubitos",
+    copy: "500 ml de caldo en cubitos que se descongelan rápido. Porciones exactas para smoothies, sopas, arroz y guisos.",
+    cta: "Ver cubitos",
+    href: "/shop/cubitos",
   },
   {
-    src: "/imgs/menu/churrasco.jpeg",
+    src: "/images/origen.jpg",
     focus: "center 55%",
-    label: "Parrilla",
-    title: "Churrasco a la parrilla",
-    copy: "Carne jugosa con arroz con queso, ensalada del día, yuca frita y llajua. Directo de la parrilla a tu mesa.",
-    cta: "Ver parrilla",
-    href: "/shop/parrilla",
+    label: "Origen",
+    title: "El mismo poder, nueva forma",
+    copy: "Caldo en polvo instantáneo: solo agrégalo a agua caliente o úsalo como topping en comidas, ensaladas, salsas y batidos.",
+    cta: "Ver Origen",
+    href: "/shop/origen",
   },
   {
-    src: "/imgs/menu/gaseosa-coca-cola-500-ml.jpg",
+    src: "/images/nutriglow-crema.webp",
     focus: "center 50%",
-    label: "Bebidas",
-    title: "Bien frías, siempre",
-    copy: "Coca-Cola, Sprite, Fanta, Pepsi y Guaraná de 500 ml para acompañar tu pedido. Delivery o retiro en tienda.",
-    cta: "Ver bebidas",
-    href: "/shop/bebidas",
+    label: "NutriGlow",
+    title: "Skincare de tallow",
+    copy: "Crema hidratante regeneradora con tallow de res y aceite esencial de frankincense. 100% natural, sin conservantes, para día y noche.",
+    cta: "Ver NutriGlow",
+    href: "/shop/nutriglow",
   },
 ];
 
@@ -134,7 +134,7 @@ export function PromoSlider() {
 
             <Link
               href={slide.href}
-              className="slide-text-in mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-9 py-3.5 text-sm font-bold text-brand-deep shadow-[0_18px_40px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
+              className="slide-text-in mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-9 py-3.5 text-sm font-bold text-brand-deep shadow-[0_18px_40px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
               style={{ animationDelay: "200ms" }}
             >
               {slide.cta}
@@ -251,7 +251,7 @@ export function PromoSlider() {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "linear-gradient(90deg, rgba(29,58,14,0.65) 0%, rgba(29,58,14,0.15) 24%, rgba(29,58,14,0) 48%), linear-gradient(180deg, rgba(29,58,14,0.10) 0%, rgba(29,58,14,0.30) 100%)",
+                "linear-gradient(90deg, rgba(31,51,32,0.65) 0%, rgba(31,51,32,0.15) 24%, rgba(31,51,32,0) 48%), linear-gradient(180deg, rgba(31,51,32,0.10) 0%, rgba(31,51,32,0.30) 100%)",
             }}
           />
           <span className="absolute bottom-6 right-6 rounded-full bg-cream/90 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-brand-deep">
@@ -261,7 +261,7 @@ export function PromoSlider() {
       </div>
 
       {/* Thin accent inset frame around the whole band */}
-      <div className="pointer-events-none absolute inset-4 z-10 border border-[rgba(255,216,102,0.35)] sm:inset-6" />
+      <div className="pointer-events-none absolute inset-4 z-10 border border-[rgba(227,178,100,0.35)] sm:inset-6" />
     </section>
   );
 }
@@ -272,7 +272,7 @@ function ArrowButton({ dir, onClick }: { dir: "prev" | "next"; onClick: () => vo
       type="button"
       onClick={onClick}
       aria-label={dir === "prev" ? "Diapositiva anterior" : "Diapositiva siguiente"}
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[rgba(255,216,102,0.5)] text-accent-soft transition hover:border-accent hover:bg-accent hover:text-brand-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[rgba(227,178,100,0.5)] text-accent-soft transition hover:border-accent hover:bg-accent hover:text-brand-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d={dir === "prev" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"} strokeLinecap="round" strokeLinejoin="round" />

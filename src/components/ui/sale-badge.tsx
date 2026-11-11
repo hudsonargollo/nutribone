@@ -16,7 +16,7 @@ function TagIcon({ className = "" }: { className?: string }) {
 export function SaleRibbon({ percent }: { percent: number }) {
   return (
     <span
-      className="pointer-events-none absolute left-3 top-0 z-10 drop-shadow-[0_6px_10px_rgba(29,58,14,0.35)]"
+      className="pointer-events-none absolute left-3 top-0 z-10 drop-shadow-[0_6px_10px_rgba(31,51,32,0.35)]"
       aria-label={`${percent}% de descuento`}
     >
       {/* brand body + accent edge: stands out on cream and accent product photos alike */}
@@ -73,7 +73,7 @@ export function DealPanel({
         </div>
 
         {/* Accent seal */}
-        <div className="shrink-0 -rotate-6 rounded-full bg-gradient-to-br from-accent-soft via-accent to-accent-strong p-[3px] shadow-[0_12px_26px_-10px_rgba(255,204,4,0.85)]">
+        <div className="shrink-0 -rotate-6 rounded-full bg-gradient-to-br from-accent-soft via-accent to-accent-strong p-[3px] shadow-[0_12px_26px_-10px_rgba(201,138,46,0.85)]">
           <div className="sale-shine flex h-[5.25rem] w-[5.25rem] flex-col items-center justify-center rounded-full border-2 border-dashed border-brand/35 bg-gradient-to-br from-accent-soft via-accent to-accent-strong text-brand">
             <span className="font-display text-[1.9rem] font-bold leading-none">{percent}%</span>
             <span className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.24em]">Dto.</span>

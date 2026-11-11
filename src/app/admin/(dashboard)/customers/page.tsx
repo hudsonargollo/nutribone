@@ -1,15 +1,15 @@
 import { getAdminCustomers } from "@/lib/admin-data";
 import { formatPrice, formatDate } from "@/lib/format";
 import { DbBanner } from "@/components/admin/db-banner";
-import { requireAdmin, scopeBranchId } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Clientes" };
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminCustomersPage() {
-  const session = await requireAdmin(); // layouts don't re-run on client navigation
-  const { dbConnected, customers } = await getAdminCustomers(scopeBranchId(session));
+  await requireAdmin(); // layouts don't re-run on client navigation
+  const { dbConnected, customers } = await getAdminCustomers();
 
   return (
     <div>
@@ -27,7 +27,7 @@ export default async function AdminCustomersPage() {
             </p>
           </div>
         ) : (
-          <div className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)]">
+          <div className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)]">
             {/* Desktop table */}
             <div className="hidden overflow-x-auto sm:block">
               <table className="w-full text-sm">

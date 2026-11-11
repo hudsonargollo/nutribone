@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatPrice, formatDate } from "@/lib/format";
+import { PAYMENT_METHOD_LABEL } from "@/lib/order-status";
 import { StatusBadge } from "@/components/status-badge";
 import type { AdminOrderRow } from "@/lib/admin-data";
 
@@ -40,7 +41,7 @@ export function OrdersTable({ orders }: { orders: AdminOrderRow[] }) {
   }, [orders, tab, q]);
 
   return (
-    <div className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)]">
+    <div className="rounded-2xl border border-[var(--line)] bg-surface shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)]">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 border-b border-[var(--line)] p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
@@ -112,14 +113,9 @@ export function OrdersTable({ orders }: { orders: AdminOrderRow[] }) {
                       <span className="block whitespace-nowrap font-medium text-accent-strong">{o.orderNumber}</span>
                       <span className="mt-0.5 block text-xs text-muted">{o.itemCount} producto{o.itemCount === 1 ? "" : "s"}</span>
                     </td>
-                    <td className="px-4 py-3 text-ink">
-                      {o.customerName}
-                      <span className="mt-0.5 block text-xs text-muted">
-                        {o.branchName} · {o.fulfillment === "PICKUP" ? "Retiro" : "Envío"}
-                      </span>
-                    </td>
+                    <td className="px-4 py-3 text-ink">{o.customerName}</td>
                     <td className="px-4 py-3">
-                      <span className="mr-2 text-xs font-medium text-ink">{o.paymentMethod}</span>
+                      <span className="mr-2 text-xs font-medium text-ink">{PAYMENT_METHOD_LABEL[o.paymentMethod] ?? o.paymentMethod}</span>
                       <StatusBadge status={o.paymentStatus} />
                     </td>
                     <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
@@ -149,8 +145,7 @@ export function OrdersTable({ orders }: { orders: AdminOrderRow[] }) {
                 </div>
                 <div className="flex items-center justify-between gap-2 text-xs text-muted">
                   <span>
-                    {o.branchName} · {o.fulfillment === "PICKUP" ? "Retiro" : "Envío"} · {o.itemCount}{" "}
-                    producto{o.itemCount === 1 ? "" : "s"} · {o.paymentMethod}
+                    {o.itemCount} producto{o.itemCount === 1 ? "" : "s"} · {PAYMENT_METHOD_LABEL[o.paymentMethod] ?? o.paymentMethod}
                   </span>
                   <span>{formatDate(o.createdAt)}</span>
                 </div>

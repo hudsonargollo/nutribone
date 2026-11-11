@@ -7,28 +7,26 @@ import { createToken, readToken } from "./session-token";
 
 export { hashPassword, verifyPassword } from "./password";
 
-const SESSION_COOKIE = "casadelcamba_admin";
+const SESSION_COOKIE = "nutribone_admin";
 const SESSION_TTL_SECONDS = 60 * 60 * 8; // 8 hours
 export const ADMIN_ROLES = ["ADMIN", "STAFF"];
 
 /** `ver` = the admin row's `updatedAt` (ms) when this session signed in; a newer
  *  sign-in on the same account bumps it, which retires this session (see lib/admin).
- *  `branchId` binds STAFF sessions to one store; ADMIN sessions are global. */
-export type AdminSession = { email: string; role: string; ver: number; branchId: string | null; exp: number };
+ *  All accounts are global (single online store). */
+export type AdminSession = { email: string; role: string; ver: number; exp: number };
 
 // ---------- Cookie helpers (server actions / route handlers) ----------
 
 export async function startSession(
   email: string,
   role: string,
-  ver: number,
-  branchId: string | null = null
+  ver: number
 ): Promise<void> {
   const session: AdminSession = {
     email,
     role,
     ver,
-    branchId,
     exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS,
   };
   const store = await cookies();
@@ -52,5 +50,5 @@ export async function getAdminSession(): Promise<AdminSession | null> {
   if (!token) return null;
   const session = readToken<AdminSession>("admin", token);
   if (!session || !session.email || typeof session.ver !== "number" || !ADMIN_ROLES.includes(session.role)) return null;
-  return { ...session, branchId: typeof session.branchId === "string" ? session.branchId : null };
+  return session;
 }

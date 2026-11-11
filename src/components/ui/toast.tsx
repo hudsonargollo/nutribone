@@ -178,7 +178,7 @@ function ToastCard({
       role={variant === "error" ? "alert" : "status"}
       onMouseEnter={onPause}
       onMouseLeave={onResume}
-      className={`pointer-events-auto flex w-[21rem] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-xl border ${border} bg-surface p-4 text-ink shadow-[0_24px_60px_-20px_rgba(29,58,14,0.5)] animate-[toastin_.35s_cubic-bezier(.2,.8,.2,1)]`}
+      className={`pointer-events-auto flex w-[21rem] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-xl border ${border} bg-surface p-4 text-ink shadow-[0_24px_60px_-20px_rgba(31,51,32,0.5)] animate-[toastin_.35s_cubic-bezier(.2,.8,.2,1)]`}
     >
       <span className={`mt-0.5 shrink-0 ${accent}`}>
         <VariantIcon variant={variant} />

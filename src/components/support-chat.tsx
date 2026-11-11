@@ -2,7 +2,6 @@
 
 import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { formatPrice } from "@/lib/format";
 import { type StoreSettings, whatsappUrl } from "@/lib/settings-shared";
 
@@ -34,7 +33,7 @@ function linkify(text: string): ReactNode[] {
   return out;
 }
 
-const STORAGE_KEY = "casadelcamba-chat-v1";
+const STORAGE_KEY = "nutribone-chat-v1";
 
 type Faq = { id: string; label: string; answer: string; keywords: string[] };
 
@@ -42,26 +41,34 @@ function buildFaqs(st: StoreSettings): Faq[] {
   const { deliveryTime, flatFee, freeThreshold } = st.shipping;
   return [
   {
-    id: "location",
-    label: "📍 Sucursales y horario",
-    keywords: ["ubicación", "ubicacion", "sucursal", "sucursales", "dónde están", "donde estan", "dónde queda", "donde queda", "dirección", "direccion", "santa cruz", "horario", "abierto", "abren"],
-    answer: `Visita nuestras sucursales en ${st.contact.city}. Atendemos ${st.contact.hours}. Encuentra la más cercana en /sucursal`,
+    id: "orders",
+    label: "🛒 Cómo pedir",
+    keywords: ["pedido", "pedir", "comprar", "cómo compro", "como compro", "web", "whatsapp", "anticipación", "anticipacion"],
+    answer:
+      "Elige tus productos en /shop y finaliza tu pedido en la web, o escríbenos por WhatsApp. Somos un negocio 100% digital en Santa Cruz: los pedidos se hacen con al menos 24 h de anticipación y coordinamos la entrega contigo.",
   },
   {
     id: "shipping",
-    label: "🛵 Delivery y retiro",
-    keywords: ["envío", "envio", "entrega", "delivery", "demora", "tarda", "llega", "reparto", "moto", "domicilio", "retiro", "pickup", "días", "dias"],
+    label: "🛵 Delivery",
+    keywords: ["envío", "envio", "entrega", "delivery", "demora", "tarda", "llega", "reparto", "moto", "domicilio", "días", "dias", "4to anillo", "anillo"],
     answer:
       freeThreshold > 0
-        ? `Entregamos en Santa Cruz desde tu sucursal. Tiempo estimado de entrega: ${deliveryTime}. Los tiempos dependen de la preparación, la demanda y la distancia. El delivery cuesta ${formatPrice(flatFee)} y es GRATIS en pedidos desde ${formatPrice(freeThreshold)}. También puedes retirar en tienda sin costo.`
-        : `Entregamos en Santa Cruz desde tu sucursal. Tiempo estimado de entrega: ${deliveryTime}. Los tiempos dependen de la preparación, la demanda y la distancia. El delivery es GRATIS. También puedes retirar en tienda sin costo.`,
+        ? `Entregamos en Santa Cruz. Tiempo estimado: ${deliveryTime}. El delivery cuesta ${formatPrice(flatFee)} y es GRATIS en pedidos desde ${formatPrice(freeThreshold)}. Pedidos con 24 h de anticipación; coordinamos la entrega dentro de los próximos 10 días.`
+        : `Entregamos en Santa Cruz con delivery GRATIS dentro del 4to anillo. Tiempo estimado: ${deliveryTime}. Pedidos con al menos 24 h de anticipación; coordinamos la entrega dentro de los próximos 10 días.`,
   },
   {
     id: "payment",
-    label: "💵 Pago y contra entrega",
-    keywords: ["pago", "pagar", "contra entrega", "cod", "efectivo", "tarjeta", "payment", "cash", "online", "adelanto", "qr"],
+    label: "💵 Formas de pago",
+    keywords: ["pago", "pagar", "contra entrega", "cod", "efectivo", "tarjeta", "payment", "cash", "online", "adelanto", "qr", "transferencia"],
     answer:
-      "Puedes pagar contra entrega al recibir tu pedido en tu sucursal Casa del Camba. El pago en línea con tarjeta o billetera aparece al finalizar tu compra cuando está habilitado.",
+      "Aceptamos QR, transferencia y pago contra entrega. Si pides por WhatsApp, coordinamos el pago contigo al confirmar el pedido.",
+  },
+  {
+    id: "storage",
+    label: "🧊 Conservación",
+    keywords: ["conservar", "conservación", "conservacion", "freezer", "congelar", "refrigerador", "nevera", "dura", "vence", "gel", "gelifica", "cuánto dura", "cuanto dura"],
+    answer:
+      "En el freezer hasta 3 meses y en el refrigerador hasta 4 días. Cuando el caldo se enfría se gelifica: es la señal del colágeno, y al calentarlo vuelve a líquido. Más detalles en /care.",
   },
   {
     id: "returns",
@@ -72,24 +79,24 @@ function buildFaqs(st: StoreSettings): Faq[] {
   },
   {
     id: "custom",
-    label: "🎉 Pedidos para eventos",
-    keywords: ["especial", "evento", "cumpleaños", "cumpleanos", "por mayor", "volumen", "negocio", "empresa", "custom", "personalizado", "combo"],
+    label: "📦 Pedidos por mayor",
+    keywords: ["especial", "evento", "cumpleaños", "cumpleanos", "por mayor", "volumen", "negocio", "empresa", "custom", "personalizado", "combo", "pack"],
     answer:
-      "Preparamos pedidos por volumen para cumpleaños, eventos y empresas. Llena el formulario de /custom y nuestro equipo te contactará lo antes posible para coordinar disponibilidad, opciones y precio.",
+      "Preparamos pedidos por volumen para familias, negocios y eventos. Llena el formulario de /custom y nuestro equipo te contactará lo antes posible para coordinar disponibilidad, opciones y precio.",
   },
   {
     id: "care",
-    label: "🍽️ Ingredientes y alergias",
-    keywords: ["ingrediente", "alergia", "alérgico", "alergico", "gluten", "lácteo", "lacteo", "picante", "veggie", "vegetariano", "care"],
+    label: "🌿 Ingredientes y variantes",
+    keywords: ["ingrediente", "alergia", "alérgico", "alergico", "gluten", "lácteo", "lacteo", "variante", "original", "white", "antiinflamatorio", "care", "vegetales"],
     answer:
-      "Todos nuestros platos se preparan al momento. Si tienes alguna alergia o restricción, avísanos al confirmar tu pedido y te contamos los ingredientes de cada plato. Más detalles en /care.",
+      "Trabajamos tres variantes: Original (huesos y verduras), White (sin verduras ni condimentos, sabor suave) y Antiinflamatorio (cúrcuma, jengibre, ajo y pimienta negra). Si tienes alguna alergia o restricción, avísanos al confirmar tu pedido. Más detalles en /care.",
   },
   {
     id: "track",
-    label: "📦 Rastrear mi pedido",
-    keywords: ["rastrear", "seguimiento", "estado del pedido", "dónde está mi pedido", "donde esta mi pedido", "pedido", "track"],
+    label: "🚚 Estado de mi pedido",
+    keywords: ["rastrear", "seguimiento", "estado del pedido", "dónde está mi pedido", "donde esta mi pedido", "track"],
     answer:
-      "Rastrea tu pedido en la página de Estado del pedido (Ayuda → Estado del pedido) con tu número de pedido y el correo usado al pagar. Verás en qué etapa va: preparación, en camino o listo para retiro.",
+      "Consulta el estado de tu pedido en Ayuda → Estado del pedido, con tu número de pedido y el correo usado al comprar. Verás en qué etapa va: confirmado, en preparación o en camino.",
   },
 ];
 }
@@ -99,7 +106,6 @@ type Msg = { from: "bot" | "user"; text: string };
 
 
 export function SupportChat({ settings }: { settings: StoreSettings }) {
-  const pathname = usePathname();
   const FAQS = buildFaqs(settings);
   const WA = whatsappUrl(settings);
   const HAS_WHATSAPP = Boolean(WA);
@@ -109,7 +115,7 @@ export function SupportChat({ settings }: { settings: StoreSettings }) {
   const [input, setInput] = useState("");
   const greeting: Msg = {
     from: "bot",
-    text: "¡Hola! 👋 Soy el asistente de Casa del Camba. Pregúntame por el menú, platos, delivery, retiro en tienda, formas de pago o el estado de tu pedido.",
+    text: "¡Hola! 👋 Soy el asistente de NutriBone. Pregúntame por nuestros caldos, cómo pedir, delivery, conservación o el estado de tu pedido.",
   };
   const [msgs, setMsgs] = useState<Msg[]>([greeting]);
   const [typing, setTyping] = useState(false);
@@ -194,23 +200,20 @@ export function SupportChat({ settings }: { settings: StoreSettings }) {
     }
   };
 
-  // The map page has its own floating controls; the chat bubble would cover them.
-  if (pathname === "/sucursal") return null;
-
   return (
     <>
       {/* ── Launcher ── */}
       <div className="group/launch fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[70] flex items-center gap-3 sm:bottom-5 sm:right-5">
         {/* hover label (desktop) */}
         {!open && (
-          <span className="pointer-events-none hidden translate-x-2 items-center rounded-full border border-[var(--line)] bg-surface px-3.5 py-2 text-sm font-medium text-ink opacity-0 shadow-[0_10px_30px_-12px_rgba(29,58,14,0.4)] transition-all duration-300 group-hover/launch:translate-x-0 group-hover/launch:opacity-100 md:flex">
+          <span className="pointer-events-none hidden translate-x-2 items-center rounded-full border border-[var(--line)] bg-surface px-3.5 py-2 text-sm font-medium text-ink opacity-0 shadow-[0_10px_30px_-12px_rgba(31,51,32,0.4)] transition-all duration-300 group-hover/launch:translate-x-0 group-hover/launch:opacity-100 md:flex">
             ¿Necesitas ayuda? Escríbenos
           </span>
         )}
         <button
           onClick={toggleOpen}
           aria-label={open ? "Cerrar chat" : "Abrir chat"}
-          className={`relative flex h-12 w-12 items-center justify-center rounded-full sm:h-14 sm:w-14 bg-gradient-to-br from-accent-soft via-accent to-accent-strong text-brand shadow-[0_16px_40px_-12px_rgba(255,204,4,0.75)] ring-1 ring-[rgba(163,212,120,0.6)] transition-transform duration-300 hover:scale-110 active:scale-95 ${
+          className={`relative flex h-12 w-12 items-center justify-center rounded-full sm:h-14 sm:w-14 bg-gradient-to-br from-accent-soft via-accent to-accent-strong text-brand shadow-[0_16px_40px_-12px_rgba(201,138,46,0.75)] ring-1 ring-[rgba(201,138,46,0.6)] transition-transform duration-300 hover:scale-110 active:scale-95 ${
             open ? "" : "animate-chatpulse"
           }`}
         >
@@ -237,21 +240,21 @@ export function SupportChat({ settings }: { settings: StoreSettings }) {
 
       {/* ── Panel ── */}
       {open && (
-        <div className="animate-chatin fixed bottom-20 right-4 z-[70] sm:bottom-24 sm:right-5 flex h-[32rem] max-h-[calc(100dvh-7.5rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-3xl border border-[rgba(163,212,120,0.35)] bg-surface shadow-[0_40px_90px_-30px_rgba(29,58,14,0.7)]">
+        <div className="animate-chatin fixed bottom-20 right-4 z-[70] sm:bottom-24 sm:right-5 flex h-[32rem] max-h-[calc(100dvh-7.5rem)] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-3xl border border-[rgba(201,138,46,0.35)] bg-surface shadow-[0_40px_90px_-30px_rgba(31,51,32,0.7)]">
           {/* Header */}
           <div className="relative overflow-hidden bg-gradient-to-br from-brand via-brand-dark to-brand-deep px-5 pb-5 pt-4 text-light">
             <div
               className="pointer-events-none absolute inset-0 opacity-[0.12]"
-              style={{ background: "radial-gradient(120px 80px at 85% 0%, #ffd866, transparent 70%)" }}
+              style={{ background: "radial-gradient(120px 80px at 85% 0%, #e3b264, transparent 70%)" }}
             />
             <div className="relative flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(163,212,120,0.16)] text-accent ring-1 ring-[rgba(163,212,120,0.4)]">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(201,138,46,0.16)] text-accent ring-1 ring-[rgba(201,138,46,0.4)]">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </span>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-lg font-semibold leading-tight">Casa del Camba</p>
+                <p className="font-display text-lg font-semibold leading-tight">NutriBone</p>
                 <p className="mt-0.5 flex items-center gap-1.5 text-xs text-light/75">
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                   Santa Cruz, Bolivia · {CONTACT.hours}
@@ -280,11 +283,11 @@ export function SupportChat({ settings }: { settings: StoreSettings }) {
               <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
                 {m.from === "bot" && (
                   <span className="mr-2 mt-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-deep text-[0.6rem] text-accent">
-                    S
+                    N
                   </span>
                 )}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-[0_6px_18px_-10px_rgba(29,58,14,0.35)] ${
+                  className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-[0_6px_18px_-10px_rgba(31,51,32,0.35)] ${
                     m.from === "user"
                       ? "rounded-br-md bg-gradient-to-br from-accent-soft to-accent text-brand"
                       : "rounded-bl-md border border-[var(--line)] bg-surface text-ink"
@@ -306,7 +309,7 @@ export function SupportChat({ settings }: { settings: StoreSettings }) {
             {typing && (
               <div className="flex justify-start" aria-live="polite">
                 <span className="mr-2 mt-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-deep text-[0.6rem] text-accent">
-                  S
+                  N
                 </span>
                 <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-[var(--line)] bg-surface px-3.5 py-3">
                   <span className="sr-only">El asistente está escribiendo</span>
@@ -331,7 +334,7 @@ export function SupportChat({ settings }: { settings: StoreSettings }) {
                   <button
                     key={f.id}
                     onClick={() => answer(f)}
-                    className="rounded-full border border-[var(--line-strong)] bg-surface px-3 py-1.5 text-xs font-medium text-ink shadow-sm transition hover:-translate-y-0.5 hover:border-accent hover:text-accent-strong hover:shadow-[0_8px_20px_-10px_rgba(255,204,4,0.6)]"
+                    className="rounded-full border border-[var(--line-strong)] bg-surface px-3 py-1.5 text-xs font-medium text-ink shadow-sm transition hover:-translate-y-0.5 hover:border-accent hover:text-accent-strong hover:shadow-[0_8px_20px_-10px_rgba(201,138,46,0.6)]"
                   >
                     {f.label}
                   </button>
@@ -342,7 +345,7 @@ export function SupportChat({ settings }: { settings: StoreSettings }) {
 
           {/* WhatsApp CTA (or contact page when no number is configured) */}
           <a
-            href={HAS_WHATSAPP ? waLink("¡Hola Casa del Camba! Quiero hacer un pedido 😊") : "/contact"}
+            href={HAS_WHATSAPP ? waLink("¡Hola NutriBone! Quiero hacer un pedido 😊") : "/contact"}
             target={HAS_WHATSAPP ? "_blank" : undefined}
             rel={HAS_WHATSAPP ? "noopener noreferrer" : undefined}
             className="flex items-center justify-center gap-2 bg-[#25D366] py-2.5 text-sm font-semibold text-white transition hover:brightness-105"
@@ -366,7 +369,7 @@ export function SupportChat({ settings }: { settings: StoreSettings }) {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Pregunta lo que quieras…"
               maxLength={600}
-              className="min-w-0 flex-1 rounded-full border border-[var(--line-strong)] bg-cream-soft px-4 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(255,204,4,0.22)]"
+              className="min-w-0 flex-1 rounded-full border border-[var(--line-strong)] bg-cream-soft px-4 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-[rgba(201,138,46,0.22)]"
             />
             <button
               type="submit"

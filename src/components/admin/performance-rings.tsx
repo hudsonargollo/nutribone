@@ -37,7 +37,7 @@ export function PerformanceRings({ data }: { data: StorePerformance }) {
   ];
 
   return (
-    <section className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(29,58,14,0.4)] sm:p-6">
+    <section className="rounded-2xl border border-[var(--line)] bg-surface p-5 shadow-[0_10px_30px_-22px_rgba(31,51,32,0.4)] sm:p-6">
       <span className="eyebrow">Rendimiento</span>
       <h2 className="mt-1 font-display text-xl font-semibold text-ink">Salud de la tienda</h2>
 

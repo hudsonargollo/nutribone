@@ -108,7 +108,7 @@ export async function sendCustomRequest(_prev: InboundState, formData: FormData)
     return { error: "We couldn't upload your photos right now. Please try again, or send them on WhatsApp.", values };
   }
 
-  const subject = `Pedido para evento: ${d.pieceType}`;
+  const subject = `Pedido por mayor: ${d.pieceType}`;
   const message = [
     `Tipo: ${d.pieceType}`,
     `Formato: ${d.finish}`,

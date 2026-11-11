@@ -51,7 +51,7 @@ export function ProductGallery({
       <div
         role="group"
         aria-label={`Galería de ${name}`}
-        className="group relative aspect-square overflow-hidden rounded-[1.75rem] border border-[var(--line)] bg-white shadow-[0_34px_80px_-48px_rgba(29,58,14,0.55)]"
+        className="group relative aspect-square overflow-hidden rounded-[1.75rem] border border-[var(--line)] bg-white shadow-[0_34px_80px_-48px_rgba(31,51,32,0.55)]"
         onMouseEnter={() => {
           if (window.matchMedia("(hover: hover)").matches) setHovered(true);
         }}
@@ -80,7 +80,7 @@ export function ProductGallery({
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-[72%] h-14 w-[58%] -translate-x-1/2 rounded-[50%] bg-[rgba(29,58,14,0.13)] blur-2xl"
+          className="pointer-events-none absolute left-1/2 top-[72%] h-14 w-[58%] -translate-x-1/2 rounded-[50%] bg-[rgba(31,51,32,0.13)] blur-2xl"
         />
         <div
           aria-hidden="true"
@@ -247,7 +247,7 @@ function Arrow({
       type="button"
       onClick={onClick}
       aria-label={dir === "prev" ? "Imagen anterior" : "Imagen siguiente"}
-      className={`absolute top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[rgba(28,43,32,0.1)] bg-white/85 text-ink/70 shadow-[0_8px_22px_-12px_rgba(29,58,14,0.6)] backdrop-blur-sm transition hover:bg-accent hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}
+      className={`absolute top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[rgba(28,43,32,0.1)] bg-white/85 text-ink/70 shadow-[0_8px_22px_-12px_rgba(31,51,32,0.6)] backdrop-blur-sm transition hover:bg-accent hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d={dir === "prev" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"} strokeLinecap="round" strokeLinejoin="round" />

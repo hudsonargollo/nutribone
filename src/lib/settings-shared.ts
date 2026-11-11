@@ -8,10 +8,10 @@
  */
 export type LoyaltySettings = {
   enabled: boolean;
-  /** Brand-facing name, e.g. "Club Camba". */
+  /** Brand-facing name, e.g. "Club NutriBone". */
   name: string;
   stampsToFree: number;
-  /** What earns a stamp: the whole menu, listed categories, or listed products. */
+  /** What earns a stamp: the whole catalog, listed categories, or listed products. */
   eligible: "all" | "category" | "product";
   /** Category or product slugs for the mode above; ignored when "all". */
   eligibleSlugs: string[];

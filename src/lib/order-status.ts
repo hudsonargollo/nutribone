@@ -41,8 +41,7 @@ export function canMovePayment(from: PaymentStatus, to: PaymentStatus): boolean 
 
 export const PAYMENT_METHOD_LABEL: Record<string, string> = {
   COD: "Pago contra entrega",
-  PAYFAST: "Tarjeta (PayFast)",
-  SAFEPAY: "Tarjeta / billetera (Safepay)",
+  TRANSFER: "QR / transferencia",
 };
 
 export const ORDER_STATUS_LABEL: Record<string, string> = {

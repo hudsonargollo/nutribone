@@ -3,27 +3,36 @@ import { NotifyForm } from "@/components/notify-form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCategoryBySlug, getProducts, getShopFacets } from "@/lib/catalog";
-import { getSelectedBranch } from "@/lib/branch";
 import { parseProductFilters } from "@/lib/filters";
 import { ShopBrowser } from "@/components/shop/shop-browser";
 import { Emblem } from "@/components/brand/emblem";
 
-// Storefront copy overrides where the category name alone doesn't sell the dish.
+// Storefront copy overrides where the category name alone doesn't sell the product.
 const CATEGORY_COPY: Record<string, { title: string; description: string }> = {
-  "platos-tipicos-y-combinados": {
-    title: "Platos típicos y Combinados",
+  caldos: {
+    title: "Caldos de Huesos",
     description:
-      "Majao de pato y charque, picantes, silpancho y los buffets de la casa con todas las guarniciones cambas.",
+      "Original, White y Antiinflamatorio. Huesos horneados y 48 horas de cocción lenta para extraer colágeno, minerales y aminoácidos. En frascos de 100 a 1000 ml y packs semanales o mensuales.",
   },
-  parrilla: {
-    title: "Parrilla",
+  cubitos: {
+    title: "IceCubes · Cubitos de Caldo",
     description:
-      "Bife de chorizo, churrasco y parrillas para compartir, con arroz con queso, yuca frita y llajua.",
+      "500 ml de caldo en cubitos que se descongelan rápido. Control de porciones para smoothies, sopas, arroz, guisos y comida de bebé.",
   },
-  empanadas: {
-    title: "Empanadas",
+  origen: {
+    title: "Origen · Caldo en Polvo",
     description:
-      "De carne y de keperí, recién hechas y acompañadas con salsa tártara. El clásico camba.",
+      "El mismo poder, nueva forma: caldo en polvo instantáneo. Solo agrégalo a agua caliente o úsalo como topping en comidas, ensaladas, salsas y batidos.",
+  },
+  nutriglow: {
+    title: "NutriGlow · Skincare de Tallow",
+    description:
+      "Cosmética artesanal a base de tallow de res: crema hidratante regeneradora con frankincense y bálsamo nutrihumectante. 100% natural, sin conservantes.",
+  },
+  extras: {
+    title: "Shots y Extras",
+    description:
+      "Shot antiinflamatorio, tallow de res y más complementos para tu ritual NutriBone.",
   },
 };
 
@@ -37,7 +46,7 @@ export async function generateMetadata({
   return {
     title: copy?.title ?? cat.name,
     description:
-      copy?.description ?? cat.description ?? `Pide ${cat.name.toLowerCase()} en Casa del Camba.`,
+      copy?.description ?? cat.description ?? `Pide ${cat.name.toLowerCase()} en NutriBone.`,
     alternates: { canonical: `/shop/${cat.slug}` },
   };
 }
@@ -53,10 +62,9 @@ export default async function CategoryPage({
   const sp = await searchParams;
   const parsed = parseProductFilters(sp);
   const filters = { ...parsed, categorySlug: cat.slug };
-  const branch = await getSelectedBranch();
   const [products, facets] = await Promise.all([
-    getProducts(filters, branch?.id),
-    getShopFacets(cat.slug, branch?.id),
+    getProducts(filters),
+    getShopFacets(cat.slug),
   ]);
 
   const hasFilters = Boolean(
@@ -79,9 +87,9 @@ export default async function CategoryPage({
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/shop"
-            className="rounded-full bg-accent px-8 py-3 text-sm font-semibold text-brand-deep shadow-[0_14px_32px_-16px_rgba(255,204,4,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
+            className="rounded-full bg-accent px-8 py-3 text-sm font-semibold text-brand-deep shadow-[0_14px_32px_-16px_rgba(201,138,46,0.9)] transition duration-300 hover:-translate-y-0.5 hover:bg-accent-soft"
           >
-            Ver el menú
+            Ver productos
           </Link>
         </div>
         <div className="mt-8">
@@ -94,7 +102,7 @@ export default async function CategoryPage({
 
   return (
     <ShopBrowser
-      eyebrow="El menú"
+      eyebrow="La tienda"
       title={CATEGORY_COPY[cat.slug]?.title ?? cat.name}
       description={CATEGORY_COPY[cat.slug]?.description ?? cat.description}
       products={products}

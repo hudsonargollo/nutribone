@@ -35,7 +35,7 @@ async function login(_prev: LoginState, formData: FormData): Promise<LoginState>
     };
   }
 
-  await startSession(key, res.role, res.ver, res.branchId);
+  await startSession(key, res.role, res.ver);
   redirect("/admin?flash=admin-login");
 }
 

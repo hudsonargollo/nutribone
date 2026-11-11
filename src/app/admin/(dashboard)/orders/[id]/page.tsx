@@ -6,9 +6,9 @@ import { StatusBadge } from "@/components/status-badge";
 import { ShipmentPanel } from "@/components/admin/shipment-panel";
 import { StatusUpdateForm } from "@/components/admin/status-update-form";
 import { updateOrderStatus, updatePaymentStatus } from "../actions";
-import { ORDER_TRANSITIONS, PAYMENT_TRANSITIONS } from "@/lib/order-status";
+import { ORDER_TRANSITIONS, PAYMENT_TRANSITIONS, PAYMENT_METHOD_LABEL } from "@/lib/order-status";
 import { courierLabel, trackingUrl } from "@/lib/couriers";
-import { requireAdmin, scopeBranchId } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Detalle del pedido" };
 
@@ -17,9 +17,9 @@ export const dynamic = "force-dynamic";
 export default async function AdminOrderDetailPage({
   params,
 }: PageProps<"/admin/orders/[id]">) {
-  const session = await requireAdmin(); // layouts don't re-run on client navigation
+  await requireAdmin(); // layouts don't re-run on client navigation
   const { id } = await params;
-  const order = await getAdminOrder(id, scopeBranchId(session));
+  const order = await getAdminOrder(id);
   if (!order) notFound();
 
   return (
@@ -39,9 +39,7 @@ export default async function AdminOrderDetailPage({
         </Link>
       </div>
       <p className="mt-1 text-sm text-muted">
-        Realizado el {new Date(order.createdAt).toLocaleString("es-BO")} ·{" "}
-        <span className="font-medium text-ink">{order.branch.name}</span> ({order.branch.code}) ·{" "}
-        {order.fulfillment === "PICKUP" ? "Retiro en tienda" : "Entrega a domicilio"}
+        Realizado el {new Date(order.createdAt).toLocaleString("es-BO")} · Entrega a domicilio
       </p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -87,18 +85,9 @@ export default async function AdminOrderDetailPage({
               <Info label="Nombre" value={order.customerName} />
               <Info label="Correo electrónico" value={order.email} />
               <Info label="Teléfono" value={order.phone} />
-              <Info label="Sucursal" value={`${order.branch.name} (${order.branch.code})`} />
               <Info
-                label="Entrega"
-                value={order.fulfillment === "PICKUP" ? "Retiro en tienda" : "Entrega a domicilio"}
-              />
-              <Info
-                label={order.fulfillment === "PICKUP" ? "Retiro en" : "Dirección"}
-                value={
-                  order.fulfillment === "PICKUP"
-                    ? `${order.branch.address}, ${order.branch.city}`
-                    : `${order.address ?? ""}, ${order.city ?? ""}${order.postalCode ? ` ${order.postalCode}` : ""}`
-                }
+                label="Dirección"
+                value={`${order.address}, ${order.city}${order.postalCode ? ` ${order.postalCode}` : ""}`}
               />
               {order.notes && <Info label="Notas" value={order.notes} />}
             </dl>
@@ -107,15 +96,13 @@ export default async function AdminOrderDetailPage({
 
         {/* Status controls */}
         <aside className="space-y-5">
-          {order.fulfillment === "DELIVERY" && (
-            <ShipmentPanel
-              id={order.id}
-              booked={!!order.trackingNumber}
-              courierName={order.courier ? courierLabel(order.courier) : undefined}
-              trackingNumber={order.trackingNumber}
-              trackUrl={order.courier && order.trackingNumber ? trackingUrl(order.courier, order.trackingNumber) : undefined}
-            />
-          )}
+          <ShipmentPanel
+            id={order.id}
+            booked={!!order.trackingNumber}
+            courierName={order.courier ? courierLabel(order.courier) : undefined}
+            trackingNumber={order.trackingNumber}
+            trackUrl={order.courier && order.trackingNumber ? trackingUrl(order.courier, order.trackingNumber) : undefined}
+          />
 
           <div className="rounded-xl border border-[var(--line)] bg-surface p-5">
             <h2 className="mb-3 font-display text-lg font-semibold text-ink">Estado del pedido</h2>
@@ -130,7 +117,7 @@ export default async function AdminOrderDetailPage({
 
           <div className="rounded-xl border border-[var(--line)] bg-surface p-5">
             <h2 className="mb-1 font-display text-lg font-semibold text-ink">Pago</h2>
-            <p className="mb-3 text-sm text-muted">Método: {order.paymentMethod}</p>
+            <p className="mb-3 text-sm text-muted">Método: {PAYMENT_METHOD_LABEL[order.paymentMethod] ?? order.paymentMethod}</p>
             <StatusUpdateForm
               action={updatePaymentStatus.bind(null, order.id)}
               name="paymentStatus"

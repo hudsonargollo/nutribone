@@ -34,12 +34,12 @@ export default function CartPage() {
     return (
       <div className="mx-auto max-w-2xl px-5 py-24 text-center">
         <h1 className="font-display text-4xl font-semibold text-ink">Tu carrito está vacío</h1>
-        <p className="mt-3 text-muted">Encuentra tu próximo antojo en el menú.</p>
+        <p className="mt-3 text-muted">Encuentra tu próximo favorito en la tienda.</p>
         <Link
           href="/shop"
           className="mt-8 inline-block rounded-full bg-gradient-to-r from-accent-soft to-accent px-8 py-3 text-sm font-medium text-brand transition hover:opacity-90"
         >
-          Explorar el menú
+          Explorar la tienda
         </Link>
       </div>
     );

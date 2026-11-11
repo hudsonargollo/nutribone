@@ -3,12 +3,11 @@ import { usePathname } from "next/navigation";
 import { HeaderCart } from "./cart/header-cart";
 import { MobileMenu } from "./mobile-menu";
 import { ThemeToggle } from "./theme-toggle";
-import { useBranchPicker } from "./branch-picker";
+import { Wordmark } from "./brand/emblem";
 
 const NAV = [
   { label: "Inicio", href: "/" },
-  { label: "Menú", href: "/shop" },
-  { label: "Sucursales", href: "/sucursal" },
+  { label: "Productos", href: "/shop" },
   { label: "Nosotros", href: "/about" },
   { label: "Contacto", href: "/contact" },
 ];
@@ -17,20 +16,13 @@ const NAV = [
 const iconBtn =
   "relative flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] bg-surface/60 text-brand transition hover:border-accent hover:bg-accent/10 hover:text-accent-strong dark:text-ink";
 
-export function SiteHeader({
-  branch = null,
-  clubName = null,
-}: {
-  branch?: { name: string } | null;
-  clubName?: string | null;
-}) {
+export function SiteHeader({ clubName = null }: { clubName?: string | null }) {
   const pathname = usePathname();
-  const picker = useBranchPicker();
 
-  // The programme name is owner-editable (Admin → Club Camba), so the link is
+  // The programme name is owner-editable (Admin → Club), so the link is
   // built from settings instead of hardcoded into NAV.
   const nav = clubName
-    ? [...NAV.slice(0, 2), { label: clubName, href: "/club-camba" }, ...NAV.slice(2)]
+    ? [...NAV.slice(0, 2), { label: clubName, href: "/club" }, ...NAV.slice(2)]
     : NAV;
 
   const isActive = (href: string) =>
@@ -42,17 +34,10 @@ export function SiteHeader({
         {/* Brand */}
         <Link
           href="/"
-          aria-label="Casa del Camba — inicio"
-          className="group flex min-w-0 shrink items-center transition-transform duration-300 hover:scale-[1.02] lg:shrink-0 lg:justify-self-start"
+          aria-label="NutriBone — inicio"
+          className="group flex min-w-0 shrink items-center text-brand transition-transform duration-300 hover:scale-[1.02] lg:shrink-0 lg:justify-self-start dark:text-ink"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/casadelcamba-logo.png"
-            alt="Casa del Camba"
-            width={228}
-            height={169}
-            className="h-10 w-auto sm:h-11 lg:h-12"
-          />
+          <Wordmark />
         </Link>
 
         {/* Primary nav */}
@@ -86,15 +71,6 @@ export function SiteHeader({
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1.5 text-brand sm:gap-2 lg:justify-self-end">
-          <button
-            type="button"
-            onClick={() => picker.open()}
-            className="mr-1 hidden items-center gap-1.5 rounded-full border border-[var(--line)] bg-surface/60 px-3 py-1.5 text-xs font-semibold text-brand transition hover:border-accent hover:text-accent-strong md:flex dark:text-ink"
-            title="Cambiar sucursal"
-          >
-            <PinIcon />
-            <span className="max-w-[10rem] truncate">{branch?.name ?? "Elegir sucursal"}</span>
-          </button>
           <Link href="/search" aria-label="Buscar" className={`${iconBtn} hidden sm:flex`}>
             <SearchIcon />
           </Link>
@@ -103,22 +79,13 @@ export function SiteHeader({
           </Link>
           <ThemeToggle className={iconBtn} />
           <HeaderCart className={iconBtn} />
-          <MobileMenu branchName={branch?.name ?? null} clubName={clubName} />
+          <MobileMenu clubName={clubName} />
         </div>
       </div>
 
       {/* Accent hairline */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(255,204,4,0.5)] to-transparent" />
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(201,138,46,0.5)] to-transparent" />
     </header>
-  );
-}
-
-function PinIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" strokeLinejoin="round" />
-      <circle cx="12" cy="10" r="2.5" />
-    </svg>
   );
 }
 

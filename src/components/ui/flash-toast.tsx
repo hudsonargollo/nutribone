@@ -14,7 +14,7 @@ const MESSAGES: Record<
   { variant: "success" | "error" | "info"; message: string; title?: string }
 > = {
   login: { variant: "success", message: "¡Hola de nuevo!", title: "Sesión iniciada" },
-  register: { variant: "success", message: "Bienvenido a Casa del Camba ✨", title: "Cuenta creada" },
+  register: { variant: "success", message: "Bienvenido a NutriBone ✨", title: "Cuenta creada" },
   "admin-login": { variant: "success", message: "Sesión iniciada en el panel.", title: "Panel" },
   "signed-out": { variant: "info", message: "Cerraste sesión." },
   "product-created": { variant: "success", message: "Producto creado.", title: "Guardado" },

@@ -13,7 +13,7 @@ export function ProductGrid({ products, layout = "full" }: { products: ProductVi
   if (products.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-[var(--line)] bg-surface/50 py-20 text-center">
-        <p className="font-display text-xl text-ink">No encontramos nada en el menú</p>
+        <p className="font-display text-xl text-ink">No encontramos nada en la tienda</p>
         <p className="mt-1 text-sm text-muted">Prueba ajustando los filtros.</p>
       </div>
     );
