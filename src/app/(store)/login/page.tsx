@@ -15,5 +15,6 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const next = safeNext(Array.isArray(sp.next) ? sp.next[0] : sp.next);
   // Already signed in? Skip the form.
   if (await getCustomerSession()) redirect(next);
-  return <LoginForm next={next} />;
+  const magicExpired = sp.magic === "expired";
+  return <LoginForm next={next} magicExpired={magicExpired} />;
 }

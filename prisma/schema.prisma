@@ -161,7 +161,9 @@ model Customer {
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
-  passwordHash String
+  // Null for passwordless accounts (created by guest checkout) — they sign in
+  // with the magic link from their order email and can set a password later.
+  passwordHash String?
   phone        String?
   // Set once the customer proves they own the email (OTP). Null = unverified
   // (accounts created before OTP existed, or via checkout sign-up).

@@ -5,6 +5,8 @@ import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { orderLoyalty } from "@/lib/loyalty";
 import { getStoreSettings } from "@/lib/settings";
+import { getCustomerSession } from "@/lib/customer-auth";
+import { emailConfigured } from "@/lib/email";
 import { CONTACT } from "@/lib/contact";
 import { ClearCart } from "@/components/cart/clear-cart";
 
@@ -22,6 +24,7 @@ type OrderSummary = {
   paymentMethod: string;
   status: string;
   customerId: string | null;
+  customerPasswordHash: string | null;
   productIds: string[];
 };
 
@@ -36,11 +39,17 @@ async function findOrder(orderNumber: string): Promise<OrderSummary | null> {
         paymentMethod: true,
         status: true,
         customerId: true,
+        customer: { select: { passwordHash: true } },
         items: { select: { productId: true } },
       },
     });
     return o
-      ? { ...o, total: Number(o.total), productIds: o.items.map((i) => i.productId) }
+      ? {
+          ...o,
+          total: Number(o.total),
+          customerPasswordHash: o.customer?.passwordHash ?? null,
+          productIds: o.items.map((i) => i.productId),
+        }
       : null;
   } catch {
     return null;
@@ -59,6 +68,14 @@ export default async function SuccessPage({
   if (order.status === "CANCELLED") redirect("/cart");
 
   const isTransfer = order.paymentMethod === "TRANSFER";
+
+  // Who is looking: the signed-in owner, a passwordless guest whose order just
+  // created/opened an account (access arrives by email), or a guest whose email
+  // already had a password account.
+  const session = await getCustomerSession();
+  const owned = Boolean(session && order.customerId && session.id === order.customerId);
+  const passwordless =
+    !owned && emailConfigured() && order.customerId !== null && order.customerPasswordHash === null;
 
   // What the order moved on the loyalty ledger (account orders only).
   const settings = await getStoreSettings();
@@ -126,7 +143,7 @@ export default async function SuccessPage({
         </div>
       )}
 
-      {order.customerId && (
+      {owned && (
         <div className="mx-auto mt-6 max-w-sm rounded-xl border border-accent/40 bg-accent/5 p-5 text-sm">
           <p className="font-medium text-ink">Guardado en tu cuenta</p>
           <p className="mt-1 text-muted">Sigue este pedido y revisa todos tus anteriores cuando quieras.</p>
@@ -135,6 +152,37 @@ export default async function SuccessPage({
             className="mt-3 inline-block rounded-full border border-[var(--line-strong)] px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-ink transition hover:border-accent hover:text-accent-strong"
           >
             Ver mis pedidos
+          </Link>
+        </div>
+      )}
+
+      {passwordless && (
+        <div className="mx-auto mt-6 max-w-sm rounded-xl border border-accent/40 bg-accent/5 p-5 text-sm">
+          <p className="font-medium text-ink">Enlace de acceso por correo</p>
+          <p className="mt-1 text-muted">
+            Te enviamos un enlace a tu correo para entrar sin contraseña: ahí sigues este pedido y
+            ves tus sellos del {settings.loyalty.name}. Vence en 24 h.
+          </p>
+          <Link
+            href="/login"
+            className="mt-3 inline-block rounded-full border border-[var(--line-strong)] px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-ink transition hover:border-accent hover:text-accent-strong"
+          >
+            ¿No te llegó? Pedir otro enlace
+          </Link>
+        </div>
+      )}
+
+      {!owned && !passwordless && order.customerId && (
+        <div className="mx-auto mt-6 max-w-sm rounded-xl border border-accent/40 bg-accent/5 p-5 text-sm">
+          <p className="font-medium text-ink">Guardado en tu cuenta</p>
+          <p className="mt-1 text-muted">
+            Este pedido quedó en la cuenta de tu correo. Inicia sesión para seguirlo.
+          </p>
+          <Link
+            href="/login"
+            className="mt-3 inline-block rounded-full border border-[var(--line-strong)] px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-ink transition hover:border-accent hover:text-accent-strong"
+          >
+            Iniciar sesión
           </Link>
         </div>
       )}
@@ -155,12 +203,21 @@ export default async function SuccessPage({
               </>
             )}
           </p>
-          <Link
-            href="/club"
-            className="mt-3 inline-block rounded-full border border-[var(--line-strong)] px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-ink transition hover:border-accent hover:text-accent-strong"
-          >
-            Ver mi tarjeta
-          </Link>
+          {!owned && (
+            <p className="mt-1 text-muted">
+              {order.customerPasswordHash === null
+                ? "Entra con el enlace de tu correo para ver tu tarjeta."
+                : "Inicia sesión para ver tu tarjeta."}
+            </p>
+          )}
+          {owned && (
+            <Link
+              href="/club"
+              className="mt-3 inline-block rounded-full border border-[var(--line-strong)] px-6 py-2 text-xs font-medium uppercase tracking-[0.12em] text-ink transition hover:border-accent hover:text-accent-strong"
+            >
+              Ver mi tarjeta
+            </Link>
+          )}
         </div>
       ) : null}
 

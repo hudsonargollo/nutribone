@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
 import { Emblem } from "@/components/brand/emblem";
+import { SetPasswordForm } from "@/components/auth/set-password-form";
 import { logoutAction, startEmailVerification } from "../auth-actions";
 
 export const metadata: Metadata = {
@@ -47,15 +48,23 @@ async function getMyOrders(customerId: string): Promise<OrderRow[]> {
   }
 }
 
-export default async function AccountPage() {
+export default async function AccountPage({
+  searchParams,
+}: PageProps<"/account">) {
+  const sp = await searchParams;
   const session = await requireCustomer();
-  const [orders, verified] = await Promise.all([
+  const [orders, profile] = await Promise.all([
     getMyOrders(session.id),
     prisma.customer
-      .findUnique({ where: { id: session.id }, select: { emailVerifiedAt: true } })
-      .then((c) => Boolean(c?.emailVerifiedAt))
-      .catch(() => true), // DB hiccup: don't nag
+      .findUnique({
+        where: { id: session.id },
+        select: { emailVerifiedAt: true, passwordHash: true },
+      })
+      .catch(() => null), // DB hiccup: don't nag
   ]);
+  const verified = Boolean(profile?.emailVerifiedAt);
+  const hasPassword = Boolean(profile?.passwordHash);
+  const passwordJustSet = sp.flash === "password-set";
   const firstName = session.name.split(" ")[0];
 
   return (
@@ -76,6 +85,12 @@ export default async function AccountPage() {
         </form>
       </div>
 
+      {passwordJustSet && (
+        <p className="mt-6 rounded-xl border border-ok/40 bg-ok/[0.08] px-5 py-3.5 text-sm text-ink">
+          Listo: la próxima vez entras con tu correo y contraseña.
+        </p>
+      )}
+
       {!verified && (
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-accent/50 bg-accent/10 px-5 py-4">
           <div>
@@ -89,6 +104,17 @@ export default async function AccountPage() {
               Verificar correo
             </button>
           </form>
+        </div>
+      )}
+
+      {!hasPassword && (
+        <div className="mt-4 rounded-xl border border-accent/50 bg-accent/10 px-5 py-4">
+          <p className="font-medium text-ink">Crea tu contraseña</p>
+          <p className="text-sm text-muted">
+            Esta cuenta se creó con un pedido y entra con enlaces de acceso por correo. Define una
+            contraseña para entrar también sin ellos.
+          </p>
+          <SetPasswordForm />
         </div>
       )}
 

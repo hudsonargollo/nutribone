@@ -8,6 +8,8 @@ import { sendOrderEmails } from "./email";
 import { refreshCatalog } from "./cache-tags";
 import { accrueOrder, getBalances, redeemStamps, refundOrderLoyalty } from "./loyalty";
 import { stampCard, type LoyaltyLine } from "./loyalty-shared";
+import { dbErrorKind } from "./db-errors";
+import { createMagicToken, magicUrlFor } from "./magic-link";
 
 export const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, "Ingresa tu nombre completo").max(120),
@@ -40,7 +42,7 @@ export type CreateOrderResult =
       ok: true;
       orderNumber: string;
       total: number;
-      /** What the loyalty program gave this order (0 when the shopper isn't signed in). */
+      /** What Club NutriBone granted this order (zeros when loyalty is off). */
       loyalty: { stamps: number; points: number; redeemedProduct: string | null };
     }
   | { ok: false; error: string };
@@ -98,7 +100,7 @@ export async function cancelOrderAndRestock(orderId: string): Promise<boolean> {
 
 export async function createOrder(
   input: CheckoutInput,
-  customerId?: string | null
+  sessionCustomerId?: string | null
 ): Promise<CreateOrderResult> {
   const parsed = checkoutSchema.safeParse(input);
   if (!parsed.success) {
@@ -161,12 +163,38 @@ export async function createOrder(
     // Only attach a customerId that actually exists — a stale session cookie
     // pointing at a deleted account would otherwise cause a foreign-key error.
     let safeCustomerId: string | null = null;
-    if (customerId) {
+    if (sessionCustomerId) {
       const customer = await prisma.customer.findUnique({
-        where: { id: customerId },
+        where: { id: sessionCustomerId },
         select: { id: true },
       });
       safeCustomerId = customer?.id ?? null;
+    }
+
+    // Every order belongs to a Customer account: signed-in shoppers reuse
+    // their session account; guests get (or reuse) a passwordless one keyed
+    // to their email, so Club NutriBone stamps and order history accrue
+    // without forcing sign-up. They open it later with the magic link that
+    // ships in the order confirmation email.
+    let linkedCustomerId: string | null = safeCustomerId;
+    if (!linkedCustomerId) {
+      const existing = await prisma.customer.findUnique({ where: { email }, select: { id: true } });
+      if (existing) {
+        linkedCustomerId = existing.id;
+      } else {
+        try {
+          const created = await prisma.customer.create({
+            data: { name: data.customerName.trim(), email, phone: data.phone.trim() || null },
+            select: { id: true },
+          });
+          linkedCustomerId = created.id;
+        } catch (err) {
+          // Two concurrent checkouts for the same new email: reuse the winner.
+          if (dbErrorKind(err) !== "duplicate") throw err;
+          linkedCustomerId =
+            (await prisma.customer.findUnique({ where: { email }, select: { id: true } }))?.id ?? null;
+        }
+      }
     }
 
     // ---- Loyalty (optional) ----------------------------------------------
@@ -212,6 +240,14 @@ export async function createOrder(
     const noLoyalty = { stamps: 0, points: 0, redeemedProduct: null as string | null };
     let earned = noLoyalty;
 
+    // Stamps accrue to the linked account and are capped per product at a full
+    // card, which needs that account's current balances. The redeeming session
+    // customer's are already loaded above; otherwise fetch them once here.
+    let accrualOwned: Record<string, number> = ownedStamps;
+    if (rules.enabled && linkedCustomerId && !(redeemed && linkedCustomerId === safeCustomerId)) {
+      accrualOwned = (await getBalances(linkedCustomerId, rules)).stampsByProduct;
+    }
+
     // Decrement stock *conditionally* inside the transaction so two concurrent
     // checkouts can never oversell: the update only matches while enough stock
     // remains, otherwise the whole order rolls back.
@@ -242,7 +278,7 @@ export async function createOrder(
               postalCode: data.postalCode?.trim() || null,
               notes: data.notes?.trim() || null,
               paymentMethod: data.paymentMethod,
-              customerId: safeCustomerId,
+              customerId: linkedCustomerId,
               subtotal,
               shipping,
               total,
@@ -253,21 +289,25 @@ export async function createOrder(
 
           // Rewards ride on the same transaction: if the order doesn't commit,
           // neither do its stamps, and a spend can't be half-applied.
-          if (safeCustomerId) {
-            if (redeemed)
-              await redeemStamps(tx, {
-                customerId: safeCustomerId,
-                productId: redeemed.productId,
-                orderId: created.id,
-                rules,
-              });
+          // Redemption stays session-gated — a guest typing someone's email
+          // must never be able to spend that person's stamps — while the
+          // stamps/points this order earns always go to the linked account.
+          if (redeemed && safeCustomerId) {
+            await redeemStamps(tx, {
+              customerId: safeCustomerId,
+              productId: redeemed.productId,
+              orderId: created.id,
+              rules,
+            });
+          }
+          if (linkedCustomerId) {
             const gained = await accrueOrder(tx, {
               orderId: created.id,
-              customerId: safeCustomerId,
+              customerId: linkedCustomerId,
               lines: loyaltyLines,
               amounts: { subtotal, shipping },
               rules,
-              ownedStamps,
+              ownedStamps: accrualOwned,
             });
             earned = { ...gained, redeemedProduct: redeemed?.name ?? null };
           }
@@ -290,6 +330,16 @@ export async function createOrder(
     // the shopper reaches the confirmation page without waiting on SMTP.
     after(async () => {
       try {
+        // Passwordless account? Email a 24 h magic link so the shopper can
+        // open their order details and Club NutriBone without a password.
+        let magicUrl: string | null = null;
+        if (linkedCustomerId) {
+          const acc = await prisma.customer.findUnique({
+            where: { id: linkedCustomerId },
+            select: { passwordHash: true },
+          });
+          if (acc && !acc.passwordHash) magicUrl = magicUrlFor(createMagicToken(linkedCustomerId));
+        }
         await sendOrderEmails({
           orderNumber,
           customerName: data.customerName,
@@ -302,6 +352,8 @@ export async function createOrder(
           subtotal,
           shipping,
           total,
+          club: earned,
+          magicUrl,
         });
       } catch (emailErr) {
         console.error("[order] email send failed (order still saved):", emailErr);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCustomerSession } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
+import { emailConfigured } from "@/lib/email";
 import { CheckoutForm, type CheckoutDefaults } from "@/components/checkout-form";
 import { getProductBySlug } from "@/lib/catalog";
 import { getStoreSettings } from "@/lib/settings";
@@ -53,6 +54,8 @@ export default async function CheckoutPage({ searchParams }: PageProps<"/checkou
       defaults={defaults}
       buyNow={buyNow}
       shippingRules={settings.shipping}
+      // Only promise the emailed access link when mail can actually go out.
+      guestNote={emailConfigured() && settings.loyalty.enabled ? settings.loyalty.name : null}
     />
   );
 }

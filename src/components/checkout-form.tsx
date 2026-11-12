@@ -27,10 +27,13 @@ export function CheckoutForm({
   defaults,
   buyNow = null,
   shippingRules = { flatFee: 15, freeThreshold: 0, deliveryTime: "" },
+  guestNote = null,
 }: {
   shippingRules?: { flatFee: number; freeThreshold: number; deliveryTime: string };
   buyNow?: CartItem | null;
   defaults?: CheckoutDefaults;
+  /** Loyalty programme name; set when emails are on, so guests know what arrives in their inbox. */
+  guestNote?: string | null;
 }) {
   const router = useRouter();
   const cart = useCart();
@@ -166,7 +169,15 @@ export function CheckoutForm({
         </p>
       ) : (
         <p className="mt-2 text-sm text-muted">
-          Compra como invitado — solo necesitamos tus datos para coordinar la entrega.
+          {guestNote ? (
+            <>
+              Compra como invitado — sin crear cuenta. Te llegará la confirmación y un{" "}
+              <span className="text-ink">enlace de acceso</span> por correo para seguir tu pedido y
+              sumar sellos del {guestNote}.
+            </>
+          ) : (
+            "Compra como invitado — solo necesitamos tus datos para coordinar la entrega."
+          )}
         </p>
       )}
 

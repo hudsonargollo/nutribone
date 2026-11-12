@@ -6,7 +6,7 @@ import { timingSafeEqual, createHmac } from "node:crypto";
 // token minted for one kind can never be replayed as another — e.g. a customer
 // cookie pasted into the admin cookie fails verification.
 
-export type TokenKind = "admin" | "customer" | "reset" | "verify";
+export type TokenKind = "admin" | "customer" | "reset" | "verify" | "magic";
 
 const DEV_FALLBACK = "dev-secret-change-me";
 

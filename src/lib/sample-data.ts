@@ -2,7 +2,8 @@ import type { CategoryView, ProductView } from "./types";
 
 // Fallback catalog used until a real PostgreSQL database is connected.
 // Mirrors prisma/seed.ts so the UI looks identical before and after DB hookup.
-// Prices are 0 = "Precio por confirmar": the client loads real prices in Admin.
+// Prices are provisional Bs placeholders chosen at the owner's request —
+// the real list lives with the client and is editable in Admin → Products.
 
 export const sampleCategories: CategoryView[] = [
   { id: "c-caldos", name: "Caldos de Huesos", slug: "caldos", description: "Original, White y Antiinflamatorio. 48 horas de cocción lenta." },
@@ -19,7 +20,7 @@ export const sampleProducts: ProductView[] = [
     slug: "caldo-de-huesos-original",
     description:
       "El clásico que no pasa de moda: puro sabor y nutrientes esenciales sin aditivos. Huesos de res horneados con verduras y 48 horas de cocción lenta. Disponible en frascos de 100 a 1000 ml y en packs semanal (7) o mensual (30).",
-    price: 0,
+    price: 45,
     compareAtPrice: null,
     material: "Frascos 100–1000 ml · packs semanal y mensual",
     specs:
@@ -35,7 +36,7 @@ export const sampleProducts: ProductView[] = [
     slug: "caldo-de-huesos-white",
     description:
       "Sin verduras ni condimentos, la opción más ligera en sabor. Huesos blanqueados y 48 horas de cocción lenta. Ideal para estómagos sensibles. En frascos de 150 y 500 ml y packs semanal o mensual.",
-    price: 0,
+    price: 45,
     compareAtPrice: null,
     material: "Frascos 150–500 ml · packs semanal y mensual",
     specs:
@@ -51,7 +52,7 @@ export const sampleProducts: ProductView[] = [
     slug: "caldo-de-huesos-antiinflamatorio",
     description:
       "Original + cúrcuma, jengibre, ajo y pimienta negra. Conservamos la grasa natural porque la curcumina es liposoluble. Pensado para tus articulaciones y defensas. En frascos de 100 a 500 ml y packs semanal o mensual.",
-    price: 0,
+    price: 50,
     compareAtPrice: null,
     material: "Frascos 100–500 ml · packs semanal y mensual",
     specs:
@@ -67,7 +68,7 @@ export const sampleProducts: ProductView[] = [
     slug: "tripack-mix",
     description:
       "5 frascos Original + 5 White + 5 Antiinflamatorio (150 ml cada uno). La forma más fácil de probar las tres variantes y encontrar tu favorita.",
-    price: 0,
+    price: 600,
     compareAtPrice: null,
     material: "15 frascos de 150 ml (5+5+5)",
     stock: 15,
@@ -81,7 +82,7 @@ export const sampleProducts: ProductView[] = [
     slug: "pack-mensual-mix",
     description:
       "10 Original + 10 White + 10 Antiinflamatorio (150 ml cada uno). Un mes completo de nutrición real, en una sola entrega.",
-    price: 0,
+    price: 1100,
     compareAtPrice: null,
     material: "30 frascos de 150 ml (10+10+10)",
     stock: 10,
@@ -95,7 +96,7 @@ export const sampleProducts: ProductView[] = [
     slug: "icecubes-cubitos-de-caldo",
     description:
       "500 ml de caldo en cubitos que se descongelan rápido. Control de porciones para smoothies, sopas, arroz, guisos y comida de bebé. Disponible en Original, White y Antiinflamatorio.",
-    price: 0,
+    price: 60,
     compareAtPrice: null,
     material: "500 ml en cubitos",
     stock: 25,
@@ -109,7 +110,7 @@ export const sampleProducts: ProductView[] = [
     slug: "pack-semanal-icecubes",
     description:
       "Un pack semanal del sabor que elijas (7 frascos de 150 ml) + una bolsa de IceCubes Original. Tu ritual de toda la semana, listo.",
-    price: 0,
+    price: 320,
     compareAtPrice: null,
     material: "7 frascos de 150 ml + IceCubes 500 ml",
     stock: 15,
@@ -123,7 +124,7 @@ export const sampleProducts: ProductView[] = [
     slug: "origen-caldo-en-polvo",
     description:
       "El mismo poder, nueva forma: caldo en polvo instantáneo. Solo agrégalo a agua caliente o úsalo como topping en comidas, ensaladas, salsas y batidos. En las tres variantes: Original, White y Antiinflamatorio.",
-    price: 0,
+    price: 85,
     compareAtPrice: null,
     material: "Polvo instantáneo · 3 variantes",
     stock: 20,
@@ -137,7 +138,7 @@ export const sampleProducts: ProductView[] = [
     slug: "nutriglow-crema-hidratante",
     description:
       "Crema artesanal a base de tallow de res y aceite esencial de frankincense (1%). 100% natural, sin conservantes ni aditivos, no comedogénica. Para día y noche.",
-    price: 0,
+    price: 140,
     compareAtPrice: null,
     material: "30 ml",
     specs:
@@ -153,7 +154,7 @@ export const sampleProducts: ProductView[] = [
     slug: "nutriglow-balsamo-nutrihumectante",
     description:
       "Bálsamo de tallow de res de alta calidad, aceite esencial de geranio y cera de abejas. Nutrición profunda para zonas secas.",
-    price: 0,
+    price: 95,
     compareAtPrice: null,
     material: "Bálsamo",
     stock: 15,
@@ -167,7 +168,7 @@ export const sampleProducts: ProductView[] = [
     slug: "shot-antiinflamatorio",
     description:
       "Caldo de huesos, jengibre, cúrcuma, miel con propóleo, pimienta negra y limón. Un concentrado para sumar a tu ritual.",
-    price: 0,
+    price: 25,
     compareAtPrice: null,
     material: "Shot individual",
     stock: 25,
@@ -181,7 +182,7 @@ export const sampleProducts: ProductView[] = [
     slug: "tallow-de-res",
     description:
       "Grasa real renderizada del caldo de huesos. Para cocinar o para tu piel: el mismo ingrediente noble de siempre.",
-    price: 0,
+    price: 70,
     compareAtPrice: null,
     material: "Grasa renderizada",
     stock: 15,

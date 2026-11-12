@@ -8,7 +8,8 @@ import { emailError, nameError, newPasswordError } from "@/lib/auth-rules";
 import { startCustomerSession, endCustomerSession, safeNext } from "@/lib/customer-auth";
 import { clientIp, rateLimit, TOO_MANY } from "@/lib/rate-limit";
 import { createToken, readToken } from "@/lib/session-token";
-import { sendPasswordResetEmail } from "@/lib/email";
+import { sendPasswordResetEmail, sendMagicLinkEmail } from "@/lib/email";
+import { createMagicToken, magicUrlFor, magicNext } from "@/lib/magic-link";
 import { logDbError } from "@/lib/db-errors";
 import { siteUrl } from "@/lib/site";
 import { requireCustomer } from "@/lib/customer-auth";
@@ -63,9 +64,15 @@ async function register(_prev: AuthState, formData: FormData): Promise<AuthState
   const payload = { name, passwordHash: hashPassword(password), next: safeNext(formData.get("next")) };
 
   try {
-    if (await prisma.customer.findUnique({ where: { email: e }, select: { id: true } })) {
+    // A checkout-created account (no password yet) can be claimed by
+    // registering with its email — the code proves ownership of the mailbox.
+    const existing = await prisma.customer.findUnique({
+      where: { email: e },
+      select: { id: true, passwordHash: true },
+    });
+    if (existing?.passwordHash) {
       return {
-        error: "Ya existe una cuenta con este correo. Inicia sesión o restablece tu contraseña.",
+        error: "Ya existe una cuenta con este correo. Inicia sesión, pide un enlace de acceso o restablece tu contraseña.",
         fields: ["email"],
       };
     }
@@ -106,9 +113,20 @@ export async function verifyRegistrationAction(_prev: OtpState, formData: FormDa
     if (!r.ok) return { error: r.error };
     const data = (r.payload ?? {}) as { name?: string; passwordHash?: string; next?: string };
     if (!data.name || !data.passwordHash) return { error: CODE_MSG.expired };
-    created = await prisma.customer.create({
-      data: { name: data.name, email: pending.email, passwordHash: data.passwordHash, emailVerifiedAt: new Date() },
+    // Claim a checkout-created passwordless account when registering its email;
+    // otherwise create the account fresh.
+    const existing = await prisma.customer.findUnique({
+      where: { email: pending.email },
+      select: { id: true, passwordHash: true },
     });
+    created = existing
+      ? await prisma.customer.update({
+          where: { id: existing.id },
+          data: { name: data.name, passwordHash: data.passwordHash, emailVerifiedAt: new Date() },
+        })
+      : await prisma.customer.create({
+          data: { name: data.name, email: pending.email, passwordHash: data.passwordHash, emailVerifiedAt: new Date() },
+        });
     await clearPending();
     await startCustomerSession({ id: created.id, email: created.email, name: created.name });
     redirect(withFlash(safeNext(data.next), "register"));
@@ -220,7 +238,18 @@ async function login(_prev: AuthState, formData: FormData): Promise<AuthState> {
     return { error: "Servicio no disponible. Inténtalo de nuevo en un momento." };
   }
 
-  if (!customer || !verifyPassword(password, customer.passwordHash)) {
+  if (!customer) {
+    // Don't reveal which one was wrong — mark both.
+    return { error: "Correo o contraseña incorrectos. Inténtalo de nuevo.", fields: ["email", "password"] };
+  }
+  // Passwordless account (created by guest checkout): it has no password to
+  // check — steer the shopper to the magic-link sign-in below the form.
+  if (!customer.passwordHash) {
+    return {
+      error: "Esta cuenta se creó con un pedido y aún no tiene contraseña. Usa «Entrar con enlace mágico» aquí abajo y te llega un acceso por correo.",
+    };
+  }
+  if (!verifyPassword(password, customer.passwordHash)) {
     // Don't reveal which one was wrong — mark both.
     return { error: "Correo o contraseña incorrectos. Inténtalo de nuevo.", fields: ["email", "password"] };
   }
@@ -232,6 +261,73 @@ async function login(_prev: AuthState, formData: FormData): Promise<AuthState> {
 export async function logoutAction(): Promise<void> {
   await endCustomerSession();
   redirect("/?flash=signed-out");
+}
+
+// ---------- Magic-link sign-in ----------
+// Passwordless access: the shopper types only their email and gets a signed,
+// 24-hour link by mail. Works for every account — it's how checkout-created
+// accounts (no password yet) reach their orders and Club NutriBone.
+
+export type MagicLinkState = {
+  error?: string;
+  fields?: string[];
+  ok?: boolean;
+  message?: string;
+  values?: Record<string, string>;
+};
+
+export async function requestMagicLinkAction(prev: MagicLinkState, formData: FormData): Promise<MagicLinkState> {
+  return { ...(await requestMagicLink(formData)), values: keep(formData, ["email"]) };
+}
+
+async function requestMagicLink(formData: FormData): Promise<MagicLinkState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (emailError(email)) return { error: emailError(email)!, fields: ["email"] };
+  const next = magicNext(formData.get("next"));
+
+  if (!rateLimit(`magic:${await clientIp()}`, 8, 30 * MINUTE) || !rateLimit(`magic:${email}`, 3, 30 * MINUTE)) {
+    return { error: TOO_MANY };
+  }
+
+  // Same answer whether or not the account exists (no account enumeration).
+  const done: MagicLinkState = {
+    ok: true,
+    message: "Si existe una cuenta con ese correo, te enviamos un enlace para entrar. Revisa tu bandeja (y el spam).",
+  };
+
+  try {
+    const customer = await prisma.customer.findUnique({
+      where: { email },
+      select: { id: true, name: true },
+    });
+    if (customer) {
+      const token = createMagicToken(customer.id);
+      await sendMagicLinkEmail({ to: email, name: customer.name, url: magicUrlFor(token, next) });
+    }
+  } catch (err) {
+    console.error("[auth] magic link request failed:", err);
+  }
+  return done;
+}
+
+// ---------- Set a password (passwordless accounts, after magic-link sign-in) ----------
+
+export async function setPasswordAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const session = await requireCustomer("/account");
+  const password = String(formData.get("password") ?? "");
+  const weak = newPasswordError(password);
+  if (weak) return { error: weak, fields: ["password"] };
+
+  try {
+    await prisma.customer.update({
+      where: { id: session.id },
+      data: { passwordHash: hashPassword(password) },
+    });
+  } catch (err) {
+    logDbError("set-password", err);
+    return { error: "Servicio no disponible. Inténtalo de nuevo en un momento." };
+  }
+  redirect("/account?flash=password-set");
 }
 
 // ---------- Password reset ----------
@@ -265,7 +361,8 @@ async function requestReset(_prev: AuthState, formData: FormData): Promise<AuthS
 
   try {
     const customer = await prisma.customer.findUnique({ where: { email } });
-    if (!customer) return done;
+    // Passwordless accounts have nothing to reset — their access is the magic link.
+    if (!customer || !customer.passwordHash) return done;
     const token = createToken<ResetToken>("reset", {
       id: customer.id,
       v: fingerprint(customer.passwordHash),
@@ -297,7 +394,7 @@ export async function resetPasswordAction(_prev: AuthState, formData: FormData):
   let customer;
   try {
     customer = await prisma.customer.findUnique({ where: { id: data.id } });
-    if (!customer || fingerprint(customer.passwordHash) !== data.v) return invalid;
+    if (!customer || !customer.passwordHash || fingerprint(customer.passwordHash) !== data.v) return invalid;
     customer = await prisma.customer.update({
       where: { id: customer.id },
       data: { passwordHash: hashPassword(password) },

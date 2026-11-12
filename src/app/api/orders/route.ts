@@ -19,8 +19,9 @@ export async function POST(request: Request) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const input = body as any;
 
-  // Guest checkout is allowed. When a customer is signed in, the order is
-  // attached to their account and the email goes to the account's address.
+  // Guest checkout is allowed. Every order is attached to a Customer account:
+  // the session's when signed in, otherwise a passwordless account keyed to the
+  // checkout email (created on first order — the shopper gets a magic link).
   // A cookie for a deleted account doesn't count.
   const session = await getCustomerSession();
   const customer = session
